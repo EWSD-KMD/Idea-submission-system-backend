@@ -1,0 +1,24 @@
+{
+  "name": "idea-submission-system-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/EWSD-KMD/Idea-submission-system-backend.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/EWSD-KMD/Idea-submission-system-backend/issues"
+  },
+  "homepage": "https://github.com/EWSD-KMD/Idea-submission-system-backend#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "prettier": "^3.5.1"
+  }
+}

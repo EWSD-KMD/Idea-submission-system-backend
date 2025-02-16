@@ -1,0 +1,22 @@
+{
+  "trailingComma": "es5",
+  "tabWidth": 2,
+  "semi": true,
+  "singleQuote": false,
+  "printWidth": 80,
+  "arrowParens": "avoid",
+  "bracketSpacing": true,
+  "endOfLine": "lf",
+  "proseWrap": "preserve",
+  "quoteProps": "as-needed",
+  "requirePragma": false,
+  "jsxSingleQuote": true,
+  "overrides": [
+    {
+      "files": ["*.js"],
+      "options": {
+        "parser": "javascript"
+      }
+    }
+  ]
+}
