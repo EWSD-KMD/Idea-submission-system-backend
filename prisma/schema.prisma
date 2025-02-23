@@ -1,0 +1,68 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Operation {
+  CREATE
+  READ
+  UPDATE
+  DELETE
+}
+
+model Role {
+  id              Int              @id @default(autoincrement())
+  name            String           @unique
+  rolePermissions RolePermission[]
+  // Back-relation for the User model; marked @ignore to avoid exposing it in Prisma Client.
+  users           User[]           @relation("UserToRole") @ignore
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+}
+
+model Menu {
+  id          Int          @id @default(autoincrement())
+  name        String       @unique
+  // A menu can have one or many permissions.
+  permissions Permission[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model Permission {
+  id         Int       @id @default(autoincrement())
+  operation  Operation
+  // Each permission is associated with a single menu.
+  menu       Menu      @relation(fields: [menuId], references: [id])
+  menuId     Int
+  // Linking table for roles that have this permission.
+  rolePermissions RolePermission[]
+  // Unique constraint on [menuId, operation] removed as per requirement.
+}
+
+model RolePermission {
+  id            Int         @id @default(autoincrement())
+  role          Role        @relation(fields: [roleId], references: [id])
+  roleId        Int
+  permission    Permission  @relation(fields: [permissionId], references: [id])
+  permissionId  Int
+
+  // Ensure a role cannot be assigned the same permission more than once.
+  @@unique([roleId, permissionId])
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  password  String
+  roleId    Int
+  // Define the relation using a named relation to match the back-relation in Role.
+  role      Role     @relation("UserToRole", fields: [roleId], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

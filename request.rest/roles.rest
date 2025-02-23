@@ -1,0 +1,37 @@
+# University Ideas System API Requests
+
+### Get all roles
+GET http://localhost:3000/roles?page=1&limit=5
+Content-Type: application/json
+
+###
+
+### Create a new role
+POST http://localhost:3000/roles
+Content-Type: application/json
+
+{
+  "name": "QA Coordinator"
+}
+
+###
+
+### Get a role by ID
+GET http://localhost:3000/roles/2
+Content-Type: application/json
+
+###
+
+### Update a role
+PUT http://localhost:3000/roles/1
+Content-Type: application/json
+
+{
+  "name": "Updated Role Name"
+}
+
+###
+
+### Delete a role
+DELETE http://localhost:3000/roles/1
+Content-Type: application/json

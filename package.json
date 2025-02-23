@@ -1,10 +1,14 @@
 {
   "name": "idea-submission-system-backend",
   "version": "1.0.0",
-  "description": "",
+  "description": "Secure web-enabled role-based system for collecting ideas",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node index.js",
+    "dev": "nodemon index.js",
+    "migrate": "npx prisma migrate dev --name init",
+    "generate": "npx prisma generate",
+    "pretty": "prettier --write \"./**/*.{js,jsx,mjs,cjs,ts,tsx,json}\""
   },
   "repository": {
     "type": "git",
@@ -17,8 +21,11 @@
   },
   "homepage": "https://github.com/EWSD-KMD/Idea-submission-system-backend#readme",
   "dependencies": {
+    "@prisma/client": "4.16.2",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
-    "prettier": "^3.5.1"
+    "nodemon": "^2.0.20",
+    "prettier": "^3.5.1",
+    "prisma": "^4.15.0"
   }
 }

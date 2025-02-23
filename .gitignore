@@ -1,2 +1,40 @@
+# Dependencies
 node_modules/
+package-lock.json
+
+# Environment variables
 .env
+.env.*
+
+# Prisma
+.prisma/
+*.db
+*.sqlite
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Build and dist
+dist/
+build/
+coverage/
+
+# Temporary files
+tmp/
+temp/
+
+# Debug
+.debug/
+
+# Testing
+coverage/
+.nyc_output/
