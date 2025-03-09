@@ -22,6 +22,7 @@
   "homepage": "https://github.com/EWSD-KMD/Idea-submission-system-backend#readme",
   "dependencies": {
     "@prisma/client": "4.16.2",
+    "bcrypt": "^5.1.1",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "nodemon": "^2.0.20",

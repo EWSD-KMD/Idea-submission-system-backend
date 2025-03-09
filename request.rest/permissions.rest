@@ -1,0 +1,26 @@
+### Get all permissions
+GET http://localhost:3000/api/permissions
+
+### Get permission by ID
+GET http://localhost:3000/api/permissions/1
+
+### Create new permission
+POST http://localhost:3000/api/permissions
+Content-Type: application/json
+
+{
+    "operation": "CREATE",
+    "menuId": 1
+}
+
+### Update permission
+PUT http://localhost:3000/api/permissions/1
+Content-Type: application/json
+
+{
+    "operation": "UPDATE",
+    "menuId": 1
+}
+
+### Delete permission
+DELETE http://localhost:3000/api/permissions/1

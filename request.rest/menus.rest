@@ -1,0 +1,24 @@
+### Get all menus
+GET http://localhost:3000/api/menus
+
+### Get menu by ID
+GET http://localhost:3000/api/menus/1
+
+### Create new menu
+POST http://localhost:3000/api/menus
+Content-Type: application/json
+
+{
+    "name": "User Management"
+}
+
+### Update menu
+PUT http://localhost:3000/api/menus/1
+Content-Type: application/json
+
+{
+    "name": "Updated User Management"
+}
+
+### Delete menu
+DELETE http://localhost:3000/api/menus/1
