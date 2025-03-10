@@ -16,7 +16,6 @@ export const getAllUsers = async (req, res) => {
         updatedAt: true,
       },
     });
-    console.log(users);
     return response.success(res, users);
   } catch (err) {
     console.error("Error fetching users:", err);

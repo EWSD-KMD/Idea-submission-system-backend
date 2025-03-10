@@ -61,7 +61,6 @@ class AuthService {
   }
 
   async refreshToken(oldRefreshToken) {
-    console.log(oldRefreshToken);
     const { userId, email } = await decodeToken(oldRefreshToken);
     await verifyToken(oldRefreshToken, JwtTokenType.REFRESH_TOKEN);
     await prisma.refreshToken.delete({
