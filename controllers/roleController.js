@@ -1,8 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const response = require("../utils/response");
+import response from "../utils/response.js";
 
-exports.getAllRoles = async (req, res) => {
+export const getAllRoles = async (req, res) => {
   try {
     let { page, limit } = req.query;
     page = page ? parseInt(page, 10) : 1;
@@ -30,7 +28,7 @@ exports.getAllRoles = async (req, res) => {
   }
 };
 
-exports.getRoleById = async (req, res) => {
+export const getRoleById = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const role = await prisma.role.findUnique({
@@ -46,7 +44,7 @@ exports.getRoleById = async (req, res) => {
   }
 };
 
-exports.createRole = async (req, res) => {
+export const createRole = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {
@@ -62,7 +60,7 @@ exports.createRole = async (req, res) => {
   }
 };
 
-exports.updateRole = async (req, res) => {
+export const updateRole = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { name } = req.body;
@@ -77,7 +75,7 @@ exports.updateRole = async (req, res) => {
   }
 };
 
-exports.deleteRole = async (req, res) => {
+export const deleteRole = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     await prisma.role.delete({

@@ -1,8 +1,7 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const response = require("../utils/response");
+import prisma from "../prisma/prismaClient.js";
+import response from "../utils/response.js";
 
-exports.getAllMenus = async (req, res) => {
+export const getAllMenus = async (req, res) => {
   try {
     const menus = await prisma.menu.findMany({
       include: {
@@ -16,7 +15,7 @@ exports.getAllMenus = async (req, res) => {
   }
 };
 
-exports.getMenuById = async (req, res) => {
+export const getMenuById = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const menu = await prisma.menu.findUnique({
@@ -35,7 +34,7 @@ exports.getMenuById = async (req, res) => {
   }
 };
 
-exports.createMenu = async (req, res) => {
+export const createMenu = async (req, res) => {
   try {
     const { name } = req.body;
     if (!name) {
@@ -51,7 +50,7 @@ exports.createMenu = async (req, res) => {
   }
 };
 
-exports.updateMenu = async (req, res) => {
+export const updateMenu = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { name } = req.body;
@@ -66,7 +65,7 @@ exports.updateMenu = async (req, res) => {
   }
 };
 
-exports.deleteMenu = async (req, res) => {
+export const deleteMenu = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     await prisma.menu.delete({

@@ -1,8 +1,6 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const response = require("../utils/response");
-
-exports.getAllPermissions = async (req, res) => {
+import prisma from "../prisma/prismaClient.js";
+import * as response from "../utils/response.js";
+export const getAllPermissions = async (req, res) => {
   try {
     const permissions = await prisma.permission.findMany({
       include: {
@@ -10,6 +8,7 @@ exports.getAllPermissions = async (req, res) => {
         rolePermissions: true,
       },
     });
+
     return response.success(res, permissions);
   } catch (err) {
     console.error("Error fetching permissions:", err);
@@ -17,7 +16,7 @@ exports.getAllPermissions = async (req, res) => {
   }
 };
 
-exports.getPermissionById = async (req, res) => {
+export const getPermissionById = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const permission = await prisma.permission.findUnique({
@@ -37,7 +36,7 @@ exports.getPermissionById = async (req, res) => {
   }
 };
 
-exports.createPermission = async (req, res) => {
+export const createPermission = async (req, res) => {
   try {
     const { operation, menuId } = req.body;
     if (!operation || !menuId) {
@@ -53,7 +52,7 @@ exports.createPermission = async (req, res) => {
   }
 };
 
-exports.updatePermission = async (req, res) => {
+export const updatePermission = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { operation, menuId } = req.body;
@@ -68,13 +67,15 @@ exports.updatePermission = async (req, res) => {
   }
 };
 
-exports.deletePermission = async (req, res) => {
+export const deletePermission = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     await prisma.permission.delete({
       where: { id },
     });
-    return response.success(res, { message: "Permission deleted successfully" });
+    return response.success(res, {
+      message: "Permission deleted successfully",
+    });
   } catch (err) {
     console.error("Error deleting permission:", err);
     return response.error(res, 500, "Error deleting permission");

@@ -1,9 +1,9 @@
-const { PrismaClient } = require("@prisma/client");
-const prisma = new PrismaClient();
-const response = require("../utils/response");
-const bcrypt = require("bcrypt");
+import bcrypt from "bcrypt";
 
-exports.getAllUsers = async (req, res) => {
+import prisma from "../prisma/prismaClient.js";
+import * as response from "../utils/response.js";
+
+export const getAllUsers = async (req, res) => {
   try {
     const users = await prisma.user.findMany({
       select: {
@@ -16,6 +16,7 @@ exports.getAllUsers = async (req, res) => {
         updatedAt: true,
       },
     });
+    console.log(users);
     return response.success(res, users);
   } catch (err) {
     console.error("Error fetching users:", err);
@@ -23,7 +24,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-exports.getUserById = async (req, res) => {
+export const getUserById = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const user = await prisma.user.findUnique({
@@ -48,7 +49,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-exports.createUser = async (req, res) => {
+export const createUser = async (req, res) => {
   try {
     const { email, name, password, roleId } = req.body;
     if (!email || !name || !password || !roleId) {
@@ -67,7 +68,6 @@ exports.createUser = async (req, res) => {
         email: true,
         name: true,
         roleId: true,
-        role: true,
         createdAt: true,
         updatedAt: true,
       },
@@ -79,12 +79,12 @@ exports.createUser = async (req, res) => {
   }
 };
 
-exports.updateUser = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { email, name, password, roleId } = req.body;
     const data = { email, name, roleId };
-    
+
     if (password) {
       data.password = await bcrypt.hash(password, 10);
     }
@@ -109,7 +109,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-exports.deleteUser = async (req, res) => {
+export const deleteUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     await prisma.user.delete({

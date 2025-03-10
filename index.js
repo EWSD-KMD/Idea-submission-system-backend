@@ -1,9 +1,8 @@
-const express = require("express");
-const { PrismaClient } = require("@prisma/client");
-const routes = require("./routes");
+import express from "express";
+import errorHandler from "./middlewares/errorHandlers.js";
+import routes from "./routes/index.js";
 
 const app = express();
-const prisma = new PrismaClient();
 
 app.use(express.json());
 
@@ -12,7 +11,10 @@ app.get("/", (req, res) => {
 });
 app.use("/", routes);
 
+app.use(errorHandler);
+
 const PORT = process.env.PORT || 3000;
+
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
