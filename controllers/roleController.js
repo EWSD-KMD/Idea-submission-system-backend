@@ -1,4 +1,5 @@
 import response from "../utils/response.js";
+import prisma from "../prisma/prismaClient.js";
 
 export const getAllRoles = async (req, res) => {
   try {

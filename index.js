@@ -9,7 +9,7 @@ app.use(express.json());
 app.get("/", (req, res) => {
   res.send("University Ideas System API with RBAC");
 });
-app.use("/", routes);
+app.use("/api", routes);
 
 app.use(errorHandler);
 

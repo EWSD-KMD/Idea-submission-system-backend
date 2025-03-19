@@ -1,0 +1,26 @@
+### Department Endpoints ###
+
+# Get all departments with pagination
+GET http://localhost:3000/api/departments?page=1&limit=10
+
+### Get department by ID
+GET http://localhost:3000/api/departments/1
+
+### Create department
+POST http://localhost:3000/api/departments
+Content-Type: application/json
+
+{
+    "name": "Information Technology"
+}
+
+### Update department
+PUT http://localhost:3000/api/departments/1
+Content-Type: application/json
+
+{
+    "name": "Updated IT Department"
+}
+
+### Delete department
+DELETE http://localhost:3000/api/departments/1

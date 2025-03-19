@@ -1,0 +1,40 @@
+# Get all ideas
+GET http://localhost:3000/api/ideas
+
+### Get ideas with pagination and filtering
+GET http://localhost:3000/api/ideas?page=1&limit=10&status=SHOW
+
+### Get idea by ID
+GET http://localhost:3000/api/ideas/1
+
+### Create idea
+POST http://localhost:3000/api/ideas
+Content-Type: application/json
+
+{
+    "title": "Improve Campus WiFi",
+    "description": "Upgrade campus WiFi infrastructure for better coverage",
+    "categoryId": 1,
+    "departmentId": 1
+}
+
+### Update idea
+PUT http://localhost:3000/api/ideas/1
+Content-Type: application/json
+
+{
+    "title": "Updated WiFi Improvement",
+    "description": "Updated description",
+    "categoryId": 1,
+    "departmentId": 1,
+    "status": "SHOW"
+}
+
+### Delete idea (soft delete)
+DELETE http://localhost:3000/api/ideas/1
+
+### Like idea
+POST http://localhost:3000/api/ideas/1/like
+
+### Dislike idea
+POST http://localhost:3000/api/ideas/1/dislike
