@@ -25,7 +25,7 @@ model Role {
   name            String           @unique
   rolePermissions RolePermission[]
   // Back-relation for the User model; marked @ignore to avoid exposing it in Prisma Client.
-  users           User[]           @relation("UserToRole") @ignore
+  users           User[]           @relation("UserToRole")
   createdAt       DateTime         @default(now())
   updatedAt       DateTime         @updatedAt
 }
