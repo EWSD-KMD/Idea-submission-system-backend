@@ -74,6 +74,10 @@ model User {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   refreshTokens RefreshToken[]
+  departmentId Int  @default(1)
+  department  Department  @relation("UserToDepartment", fields: [departmentId], references: [id])
+  type         UserType @default(USER) 
+  passwordUpdatedAt DateTime?
 }
 
 model RefreshToken {
@@ -88,6 +92,7 @@ model Category {
   id          Int       @id @default(autoincrement())
   name        String    @unique
   ideas       Idea[]
+  status      Status    @default(SHOW)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -98,6 +103,7 @@ model Department {
   ideas       Idea[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  users User[] @relation("UserToDepartment") 
 }
 
 model Idea {
@@ -135,4 +141,20 @@ model Comment {
   userId      Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+}
+
+enum UserType {
+  ADMIN
+  USER
+}
+
+model AcademicYear {
+  id                Int       @id @default(autoincrement())
+  year              Int
+  startDate         DateTime
+  closureDate       DateTime
+  finalClosureDate  DateTime
+  status            Status    @default(SHOW)
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
 }

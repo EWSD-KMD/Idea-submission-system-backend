@@ -50,8 +50,8 @@ export const getUserById = async (req, res) => {
 
 export const createUser = async (req, res) => {
   try {
-    const { email, name, password, roleId } = req.body;
-    if (!email || !name || !password || !roleId) {
+    const { email, name, password, roleId, departmentId, type } = req.body;
+    if (!email || !name || !password || !roleId || !departmentId || !type) {
       return response.error(res, 400, "All fields are required");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -61,6 +61,8 @@ export const createUser = async (req, res) => {
         name,
         password: hashedPassword,
         roleId,
+        departmentId,
+        type,
       },
       select: {
         id: true,
@@ -69,6 +71,8 @@ export const createUser = async (req, res) => {
         roleId: true,
         createdAt: true,
         updatedAt: true,
+        departmentId: true,
+        type: true,
       },
     });
     return response.success(res, newUser);

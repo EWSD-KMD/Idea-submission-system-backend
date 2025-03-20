@@ -1,14 +1,20 @@
 const errorHandler = async (error, _req, res, next) => {
-  const statusCode = error.statusCode || 500;
+  let statusCode = error.statusCode || 500;
+
+  // handle db error for record not found
+  if (error.code === "P2025") {
+    statusCode = 404;
+    error.message = "record not found";
+  }
 
   const response = {
     err: statusCode,
-    message: error.message,
+    message: statusCode < 500 ? error.message : "something wrong",
     data: null,
   };
 
-  if (error.errors) {
-    response.errors = error.errors;
+  if (error.errors && statusCode < 500) {
+    response.data = error.errors;
   }
 
   res.status(statusCode).json(response);

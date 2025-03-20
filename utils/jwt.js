@@ -24,6 +24,17 @@ const generateRefreshToken = async (payload) => {
   return jwtToken;
 };
 
+const generateTempToken = async (payload) => {
+  const jwtToken = await jwt.sign(
+    { ...payload, type: JwtTokenType.TEMP_TOKEN },
+    process.env.JWT_TEMP_TOKEN_SECRET,
+    {
+      expiresIn: 500,
+    }
+  );
+  return jwtToken;
+};
+
 export const generateJwtToken = async (payload, tokenType) => {
   let jwtToken;
   switch (tokenType) {
@@ -32,6 +43,9 @@ export const generateJwtToken = async (payload, tokenType) => {
       break;
     case JwtTokenType.REFRESH_TOKEN:
       jwtToken = await generateRefreshToken(payload);
+      break;
+    case JwtTokenType.TEMP_TOKEN:
+      jwtToken = await generateTempToken(payload);
       break;
     default:
       throw new AppError("invalid token type");
@@ -67,6 +81,9 @@ export const verifyToken = async (token, tokenType) => {
     case JwtTokenType.REFRESH_TOKEN:
       await jwt.verify(token, process.env.JWT_REFRESH_TOKEN_SECRET);
       break;
+    case JwtTokenType.TEMP_TOKEN:
+      await jwt.verify(token, process.env.JWT_TEMP_TOKEN_SECRET);
+      break;
     default:
       throw new AppError("invalid token type");
   }
@@ -79,4 +96,16 @@ export const decodeToken = async (token) => {
 export const getExpireDateFromToken = async (token) => {
   const decodedToken = await decodeToken(token);
   return new Date(decodedToken.exp * 1000);
+};
+
+export const isValidTokenDate = (tokenDate, passwordUpdatedAt) => {
+  if (!passwordUpdatedAt) {
+    return true;
+  }
+  console.log("token date", tokenDate);
+  console.log("password update at", new Date(passwordUpdatedAt).getTime());
+  if (tokenDate * 1000 < new Date(passwordUpdatedAt).getTime()) {
+    return false;
+  }
+  return true;
 };
