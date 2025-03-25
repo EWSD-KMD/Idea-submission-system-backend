@@ -10,6 +10,7 @@ GET http://localhost:3000/api/ideas/1
 ### Create idea
 POST http://localhost:3000/api/ideas
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyMzc3NDY5LCJleHAiOjE3NDIzNzgwNjl9.-yBZXOnF9MiIEd9k_0Wsv3KqhnMDalByJRHAVL606dU
 
 {
     "title": "Improve Campus WiFi",
@@ -38,3 +39,18 @@ POST http://localhost:3000/api/ideas/1/like
 
 ### Dislike idea
 POST http://localhost:3000/api/ideas/1/dislike
+
+### Get ideas by user
+
+
+GET http://localhost:3000/api/ideas?userId=3
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyOTAzNTcyLCJleHAiOjE3NDI5MDQxNzJ9.jwRTDGCbVOW5ym0FLLlDl1rcuwB1gno7TuXQNIeaVX4
+### Get ideas by user and department
+GET http://localhost:3000/api/ideas?userId=1&departmentId=1
+
+### Get ideas by user and category
+GET http://localhost:3000/api/ideas?userId=1&categoryId=1
+
+### Get ideas with all filters
+GET http://localhost:3000/api/ideas?page=1&limit=10&userId=1&departmentId=1&categoryId=1&status=SHOW

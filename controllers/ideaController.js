@@ -7,16 +7,15 @@ const prisma = new PrismaClient();
 
 export const getAllIdeas = async (req, res) => {
   try {
-    let { page, limit, status } = req.query;
+    let { page, limit, status, departmentId, categoryId, userId } = req.query;
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
-
     const where = {
       status: status || "SHOW",
-      reports: {
-        none: { userId: userSession.getUserId() },
-      },
+      ...(departmentId && { departmentId: parseInt(departmentId, 10) }),
+      ...(categoryId && { categoryId: parseInt(categoryId, 10) }),
+      ...(userId && { userId: parseInt(userId, 10) })
     };
 
     const [ideas, total] = await Promise.all([
@@ -44,7 +43,15 @@ export const getAllIdeas = async (req, res) => {
               },
             },
           },
+          _count: {
+            select: {
+              comments: true
+            }
+          }
         },
+        orderBy: {
+          createdAt: 'desc'
+        }
       }),
       prisma.idea.count({ where }),
     ]);
@@ -57,6 +64,12 @@ export const getAllIdeas = async (req, res) => {
       limit,
       total,
       totalPages,
+      filters: {
+        departmentId: departmentId ? parseInt(departmentId, 10) : null,
+        categoryId: categoryId ? parseInt(categoryId, 10) : null,
+        userId: userId ? parseInt(userId, 10) : null,
+        status
+      }
     });
   } catch (err) {
     console.error("Error fetching ideas:", err);
@@ -96,7 +109,6 @@ export const getIdeaById = async (req, res) => {
       return response.error(res, 404, "Idea not found");
     }
 
-    // Increment views
     await prisma.idea.update({
       where: { id },
       data: { views: idea.views + 1 },
