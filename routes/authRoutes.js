@@ -6,6 +6,7 @@ import {
   refreshToken,
   resetPassword,
   updatePassword,
+  getProfile,
 } from "../controllers/authController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import {
@@ -27,5 +28,6 @@ router.post(
   validateUpdatePassword,
   updatePassword
 );
+router.get("/profile", authenticateToken, getProfile);
 
 export default router;

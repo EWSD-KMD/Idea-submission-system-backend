@@ -6,6 +6,7 @@ export const fetchPaginatedData = async (
   page,
   limit,
   filter = {},
+  include,
   sort = { createdAt: SortType.DESC }
 ) => {
   page = page ? parseInt(page) : 1;
@@ -14,6 +15,7 @@ export const fetchPaginatedData = async (
 
   const dataPromise = prisma[modelName].findMany({
     where: filter,
+    ...(include && { include }),
     skip,
     take: limit,
     ...(sort && { orderBy: sort }),

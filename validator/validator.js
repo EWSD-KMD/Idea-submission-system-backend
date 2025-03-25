@@ -60,3 +60,12 @@ export const validateUpdatePassword = validate([
 
   body("newPassword").notEmpty().withMessage("New password must be provide"),
 ]);
+
+export const validateCreateReportIdea = validate([
+  body("type").notEmpty().withMessage("type must be provide"),
+]);
+
+export const validateDeleteReportIdea = validate([
+  param("id").notEmpty().withMessage("id must be provide"),
+  param("id").isNumeric().withMessage("id must be number"),
+]);

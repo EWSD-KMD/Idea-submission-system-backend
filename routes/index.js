@@ -9,6 +9,7 @@ import ideaRoutes from "./ideaRoutes.js";
 import categoryRoutes from "./categoryRoutes.js";
 import departmentRoutes from "./departmentRoutes.js";
 import academicYearRoutes from "./academicYearRoutes.js";
+import adminRoutes from "./adminRoutes.js";
 
 const router = express.Router();
 
@@ -21,6 +22,7 @@ router.use("/ideas", ideaRoutes);
 router.use("/categories", categoryRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/academicYears", academicYearRoutes);
+router.use("/admin", adminRoutes);
 
 router.get("/", (req, res) => {
   res.send("Welcome to the University Ideas System API");

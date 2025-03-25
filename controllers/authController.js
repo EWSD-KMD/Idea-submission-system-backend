@@ -1,4 +1,5 @@
 import { authService } from "../services/auth.service.js";
+import { userService } from "../services/user.service.js";
 import response from "../utils/response.js";
 
 export const login = async (req, res, next) => {
@@ -63,6 +64,16 @@ export const updatePassword = async (req, res, next) => {
     const { currentPassword, newPassword } = req.body;
     await authService.updatePassword(currentPassword, newPassword);
     return response.success(res);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const getProfile = async (req, res, next) => {
+  try {
+    const data = await userService.getProfile();
+    return response.success(res, data);
   } catch (error) {
     console.error(error);
     next(error);
