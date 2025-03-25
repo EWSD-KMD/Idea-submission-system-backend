@@ -1,0 +1,27 @@
+@token=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyOTA2OTQxLCJleHAiOjE3NDI5NjY5NDF9.F92DFXtp595WAw3083uT01vQc3VPQveaiqz5MH4lE58
+
+### Get all comments for an idea
+GET http://localhost:3000/api/ideas/1/comments
+Authorization: Bearer {{token}}
+
+### Create new comment
+POST http://localhost:3000/api/ideas/1/comments
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "content": "This is a great idea!"
+}
+
+### Update comment
+PUT http://localhost:3000/api/comments/1
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+    "content": "Updated comment content"
+}
+
+### Delete comment
+DELETE http://localhost:3000/api/comments/1
+Authorization: Bearer {{token}}

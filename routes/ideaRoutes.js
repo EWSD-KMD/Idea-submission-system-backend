@@ -9,6 +9,13 @@ import {
   dislikeIdea,
   reportIdea,
 } from "../controllers/ideaController.js";
+import {
+  getAllComments,
+  createComment,
+  updateComment,
+  deleteComment
+} from "../controllers/commentController.js";
+
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import { validateCreateReportIdea } from "../validator/validator.js";
 
@@ -27,5 +34,7 @@ router.post(
   validateCreateReportIdea,
   reportIdea
 );
+router.get("/:ideaId/comments", authenticateToken, getAllComments);
+router.post("/:ideaId/comments", authenticateToken, createComment);
 
 export default router;

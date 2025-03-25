@@ -1,0 +1,13 @@
+@baseUrl = http://localhost:3000
+
+### Get notifications
+GET {{baseUrl}}/api/notifications
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyOTA0OTY3LCJleHAiOjE3NDI5MDU1Njd9.rOC-GGGe6ox1fOJ9nG9TSRRCgtDl_sHyyDNg_rscm3I
+
+### Mark notification as read
+PUT http://localhost:3000/api/notifications/1/read
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyOTA0OTY3LCJleHAiOjE3NDI5MDU1Njd9.rOC-GGGe6ox1fOJ9nG9TSRRCgtDl_sHyyDNg_rscm3I
+
+### Mark all notifications as read
+PUT http://localhost:3000/api/notifications/read-all
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6ImpvaG4uZG9lQGV4YW1wbGUuY29tIiwidXNlcklkIjozLCJ0eXBlIjoiQUNDRVNTX1RPS0VOIiwiaWF0IjoxNzQyOTA0OTY3LCJleHAiOjE3NDI5MDU1Njd9.rOC-GGGe6ox1fOJ9nG9TSRRCgtDl_sHyyDNg_rscm3I

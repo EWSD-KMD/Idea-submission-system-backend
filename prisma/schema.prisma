@@ -77,6 +77,8 @@ model User {
   refreshTokens RefreshToken[]
   departmentId Int  @default(1)
   department  Department  @relation("UserToDepartment", fields: [departmentId], references: [id])
+  notifications        Notification[] @relation("UserNotifications")
+  notificationsTriggered Notification[] @relation("NotificationsTriggered")
   type         UserType @default(USER) 
   passwordUpdatedAt DateTime?
 }
@@ -130,7 +132,7 @@ model Idea {
   comments    Comment[]
 
   reports    Report[]
-
+  notifications Notification[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
 }
@@ -173,4 +175,32 @@ model Report {
   status            Status    @default(SHOW)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
+}
+
+enum NotificationType {
+  LIKE
+  DISLIKE
+  COMMENT
+}
+
+model Notification {
+  id          Int             @id @default(autoincrement())
+  type        NotificationType
+  message     String
+  isRead      Boolean         @default(false)
+  
+  // The user who receives the notification
+  user        User            @relation("UserNotifications", fields: [userId], references: [id])
+  userId      Int
+  
+  // The user who triggered the notification
+  fromUser    User            @relation("NotificationsTriggered", fields: [fromUserId], references: [id])
+  fromUserId  Int
+  
+  // Related idea
+  idea        Idea            @relation(fields: [ideaId], references: [id])
+  ideaId      Int
+  
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
 }

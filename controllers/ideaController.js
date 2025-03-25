@@ -5,6 +5,20 @@ import { ideaReportService } from "../services/ideaReport.service.js";
 
 const prisma = new PrismaClient();
 
+const createNotification = async (type, fromUserId, ideaId, ideaOwnerId, message) => {
+  if (fromUserId !== ideaOwnerId) {
+    await prisma.notification.create({
+      data: {
+        type,
+        message,
+        userId: ideaOwnerId,
+        fromUserId,
+        ideaId
+      }
+    });
+  }
+};
+
 export const getAllIdeas = async (req, res) => {
   try {
     let { page, limit, status, departmentId, categoryId, userId } = req.query;
@@ -205,6 +219,7 @@ export const deleteIdea = async (req, res) => {
 export const likeIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
+    const userId = userSession.getUserId();
     const idea = await prisma.idea.update({
       where: { id },
       data: {
@@ -213,6 +228,16 @@ export const likeIdea = async (req, res) => {
         },
       },
     });
+    console.log("idea", idea);
+
+    await createNotification(
+      'LIKE',
+      userId,
+      id,
+      idea.userId,
+      `liked your idea "${idea.title}"`
+    );
+
     return response.success(res, idea);
   } catch (err) {
     console.error("Error liking idea:", err);
@@ -223,6 +248,7 @@ export const likeIdea = async (req, res) => {
 export const dislikeIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
+    const userId = userSession.getUserId();
     const idea = await prisma.idea.update({
       where: { id },
       data: {
@@ -231,6 +257,15 @@ export const dislikeIdea = async (req, res) => {
         },
       },
     });
+
+    await createNotification(
+      'DISLIKE',
+      userId,
+      id,
+      idea.userId,
+      `disliked your idea "${idea.title}"`
+    );
+
     return response.success(res, idea);
   } catch (err) {
     console.error("Error disliking idea:", err);

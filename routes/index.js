@@ -10,6 +10,8 @@ import categoryRoutes from "./categoryRoutes.js";
 import departmentRoutes from "./departmentRoutes.js";
 import academicYearRoutes from "./academicYearRoutes.js";
 import adminRoutes from "./adminRoutes.js";
+import notificationRoutes from "./notificationRoutes.js"; 
+import commentRoutes from "./commentRoutes.js";
 
 const router = express.Router();
 
@@ -23,6 +25,8 @@ router.use("/categories", categoryRoutes);
 router.use("/departments", departmentRoutes);
 router.use("/academicYears", academicYearRoutes);
 router.use("/admin", adminRoutes);
+router.use("/notifications", notificationRoutes);
+router.use("/comments", commentRoutes);
 
 router.get("/", (req, res) => {
   res.send("Welcome to the University Ideas System API");
