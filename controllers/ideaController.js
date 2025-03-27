@@ -2,10 +2,17 @@ import { PrismaClient } from "@prisma/client";
 import response from "../utils/response.js";
 import { userSession } from "../utils/userSession.js";
 import { ideaReportService } from "../services/ideaReport.service.js";
+import { ideaService } from "../services/idea.service.js";
 
 const prisma = new PrismaClient();
 
-const createNotification = async (type, fromUserId, ideaId, ideaOwnerId, message) => {
+const createNotification = async (
+  type,
+  fromUserId,
+  ideaId,
+  ideaOwnerId,
+  message
+) => {
   if (fromUserId !== ideaOwnerId) {
     await prisma.notification.create({
       data: {
@@ -13,8 +20,8 @@ const createNotification = async (type, fromUserId, ideaId, ideaOwnerId, message
         message,
         userId: ideaOwnerId,
         fromUserId,
-        ideaId
-      }
+        ideaId,
+      },
     });
   }
 };
@@ -29,7 +36,7 @@ export const getAllIdeas = async (req, res) => {
       status: status || "SHOW",
       ...(departmentId && { departmentId: parseInt(departmentId, 10) }),
       ...(categoryId && { categoryId: parseInt(categoryId, 10) }),
-      ...(userId && { userId: parseInt(userId, 10) })
+      ...(userId && { userId: parseInt(userId, 10) }),
     };
 
     const [ideas, total] = await Promise.all([
@@ -59,13 +66,13 @@ export const getAllIdeas = async (req, res) => {
           },
           _count: {
             select: {
-              comments: true
-            }
-          }
+              comments: true,
+            },
+          },
         },
         orderBy: {
-          createdAt: 'desc'
-        }
+          createdAt: "desc",
+        },
       }),
       prisma.idea.count({ where }),
     ]);
@@ -82,8 +89,8 @@ export const getAllIdeas = async (req, res) => {
         departmentId: departmentId ? parseInt(departmentId, 10) : null,
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
         userId: userId ? parseInt(userId, 10) : null,
-        status
-      }
+        status,
+      },
     });
   } catch (err) {
     console.error("Error fetching ideas:", err);
@@ -138,27 +145,11 @@ export const getIdeaById = async (req, res) => {
 export const createIdea = async (req, res) => {
   try {
     const { title, description, categoryId, departmentId } = req.body;
-    const userId = userSession.getUserId();
-
-    const newIdea = await prisma.idea.create({
-      data: {
-        title,
-        description,
-        categoryId,
-        departmentId,
-        userId,
-      },
-      include: {
-        category: true,
-        department: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
-      },
+    const newIdea = await ideaService.createIdea({
+      title,
+      description,
+      categoryId,
+      departmentId,
     });
 
     return response.success(res, newIdea);
@@ -231,7 +222,7 @@ export const likeIdea = async (req, res) => {
     console.log("idea", idea);
 
     await createNotification(
-      'LIKE',
+      "LIKE",
       userId,
       id,
       idea.userId,
@@ -259,7 +250,7 @@ export const dislikeIdea = async (req, res) => {
     });
 
     await createNotification(
-      'DISLIKE',
+      "DISLIKE",
       userId,
       id,
       idea.userId,
@@ -273,7 +264,7 @@ export const dislikeIdea = async (req, res) => {
   }
 };
 
-export const reportIdea = async (req, res) => {
+export const reportIdea = async (req, res, next) => {
   try {
     const id = parseInt(req.params.id, 10);
     const { type, detail } = req.body;
@@ -282,6 +273,6 @@ export const reportIdea = async (req, res) => {
     return response.success(res, data);
   } catch (err) {
     console.error("Error creating report:", err);
-    return response.error(res, 500, "Error creating report");
+    next(err);
   }
 };
