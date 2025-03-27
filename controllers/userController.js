@@ -3,20 +3,30 @@ import bcrypt from "bcrypt";
 import prisma from "../prisma/prismaClient.js";
 import response from "../utils/response.js";
 import { userService } from "../services/user.service.js";
+import { fetchPaginatedData } from "../utils/db.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const users = await prisma.user.findMany({
-      select: {
+    const { page, limit } = req.query;
+
+    const users = await fetchPaginatedData(
+      "user",
+      page,
+      limit,
+      {},
+      {
         id: true,
         email: true,
         name: true,
         roleId: true,
         role: true,
+        type: true,
+        departmentId: true,
+        department: true,
         createdAt: true,
         updatedAt: true,
-      },
-    });
+      }
+    );
     return response.success(res, users);
   } catch (err) {
     console.error("Error fetching users:", err);
