@@ -11,6 +11,10 @@ const isValidIsoString = (value) => {
   }
 };
 
+const isBooleanCustom = (value) => {
+  return value === true || value === false;
+};
+
 export const validateIdInParams = validate([
   param("id").isNumeric().withMessage("Must be a valid number"),
 ]);
@@ -68,4 +72,13 @@ export const validateCreateReportIdea = validate([
 export const validateDeleteReportIdea = validate([
   param("id").notEmpty().withMessage("id must be provide"),
   param("id").isNumeric().withMessage("id must be number"),
+]);
+
+export const validateDisabledUser = validate([
+  param("id").notEmpty().withMessage("id must be provide"),
+  param("id").isNumeric().withMessage("id must be number"),
+  body("disabledInd").notEmpty().withMessage("disabledInd must be provide"),
+  body("disabledInd")
+    .custom(isBooleanCustom)
+    .withMessage("disabledInd must be either true or false"),
 ]);

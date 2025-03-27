@@ -2,6 +2,7 @@ import bcrypt from "bcrypt";
 
 import prisma from "../prisma/prismaClient.js";
 import response from "../utils/response.js";
+import { userService } from "../services/user.service.js";
 
 export const getAllUsers = async (req, res) => {
   try {
@@ -122,5 +123,33 @@ export const deleteUser = async (req, res) => {
   } catch (err) {
     console.error("Error deleting user:", err);
     return response.error(res, 500, "Error deleting user");
+  }
+};
+
+export const disabledUser = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { disabledInd } = req.body;
+    await userService.disabledUser(id, disabledInd);
+    return response.success(res, {
+      message: "Updated user disabledInd successfully",
+    });
+  } catch (error) {
+    console.error("Error disabled user", error);
+    next(error);
+  }
+};
+
+export const fullyDisabledUser = async (req, res, next) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    const { disabledInd } = req.body;
+    await userService.fullyDisabledUser(id, disabledInd);
+    return response.success(res, {
+      message: "Updated user disabledInd for fully disabled successfully",
+    });
+  } catch (error) {
+    console.error("Error fully disabled user", error);
+    next(error);
   }
 };
