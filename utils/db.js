@@ -38,3 +38,12 @@ export const fetchPaginatedData = async (
     data,
   };
 };
+
+export function transactional(method) {
+  return async function (...args) {
+    return prisma.$transaction(async (tx) => {
+      this.prisma = tx;
+      return method.apply(this, args);
+    });
+  };
+}

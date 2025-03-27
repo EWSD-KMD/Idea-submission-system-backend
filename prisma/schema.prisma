@@ -81,6 +81,7 @@ model User {
   notificationsTriggered Notification[] @relation("NotificationsTriggered")
   type         UserType @default(USER) 
   passwordUpdatedAt DateTime?
+  disabledInd   Boolean @default(false)
 }
 
 model RefreshToken {
@@ -146,6 +147,7 @@ model Comment {
   userId      Int
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
+  status      Status    @default(SHOW)
 }
 
 enum UserType {
