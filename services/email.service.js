@@ -19,15 +19,17 @@ class EmailService {
     return template(data);
   }
 
-  async sendEmail({ fromEmail, toEmail, subject, htmlEmailContent }) {
-    const mailOptions = {
-      from: fromEmail,
-      to: toEmail,
-      subject,
-      html: htmlEmailContent,
-    };
-    const info = await this.#transporter.sendMail(mailOptions);
-    console.log("Email sent: " + info.response);
+  async sendEmail({ fromEmail, toEmails, subject, htmlEmailContent }) {
+    for (const toEmail of toEmails) {
+      const mailOptions = {
+        from: fromEmail,
+        to: toEmail,
+        subject,
+        html: htmlEmailContent,
+      };
+      const info = await this.#transporter.sendMail(mailOptions);
+      console.log("Email sent: " + info.response);
+    }
   }
 }
 

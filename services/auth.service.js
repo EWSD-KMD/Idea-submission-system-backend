@@ -91,7 +91,7 @@ class AuthService {
 
     emailService.sendEmail({
       fromEmail: process.env.GOOGLE_MAIL,
-      toEmail: userEmail,
+      toEmail: [userEmail],
       subject: EMAIL_TEMPLATE.FORGOT_PWD_TP.SUBJECT,
       htmlEmailContent: htmlContent,
     });
