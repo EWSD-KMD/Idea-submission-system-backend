@@ -2,6 +2,12 @@ import prisma from "../prisma/prismaClient.js";
 import { fetchPaginatedData } from "../utils/db.js";
 import { AppError } from "../utils/appError.js";
 import { userSession } from "../utils/userSession.js";
+import { emailService } from "./email.service.js";
+import { EMAIL_TEMPLATE } from "../constants/emailTemplateConstant.js";
+import {
+  getPrettyDate,
+  getQaManagerEmailsByDepartmentId,
+} from "../utils/common.js";
 
 class IdeaReport {
   async fetchAllIdeaReport(page, limit) {
@@ -29,6 +35,42 @@ class IdeaReport {
     });
   }
 
+  async #sendEmailReportIdea(
+    departmentId,
+    {
+      reporterEmail,
+      ideaTitle,
+      type,
+      reportedAt,
+      ideaLink,
+      reporterProfileLink,
+    }
+  ) {
+    try {
+      const toEmails = await getQaManagerEmailsByDepartmentId(departmentId);
+      const htmlContent = emailService.compileTemplate(
+        EMAIL_TEMPLATE.REPORT_IDEA_TP.PATH,
+        {
+          reporterEmail,
+          reporterProfileLink,
+          ideaTitle,
+          type,
+          reportedAt,
+          ideaLink,
+        }
+      );
+
+      emailService.sendEmail({
+        fromEmail: process.env.GOOGLE_MAIL,
+        toEmails,
+        subject: EMAIL_TEMPLATE.CREATE_IDEA_TP.SUBJECT,
+        htmlEmailContent: htmlContent,
+      });
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
   async createIdeaReport(ideaId, type, detail) {
     const report = await prisma.report.create({
       data: {
@@ -41,8 +83,31 @@ class IdeaReport {
         type: true,
         detail: true,
         ideaId: true,
+        userId: true,
+        idea: {
+          select: {
+            title: true,
+            departmentId: true,
+          },
+        },
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        createdAt: true,
       },
     });
+
+    this.#sendEmailReportIdea(report.idea.departmentId, {
+      reporterEmail: report.user.name,
+      ideaTitle: report.idea.title,
+      type: report.type,
+      reportedAt: getPrettyDate(report.createdAt),
+      ideaLink: `${process.env.FRONT_END_BASE_URL}/ideas/${report.ideaId}`,
+      reporterProfileLink: `${process.env.FRONT_END_BASE_URL}/users/${report.userId}`,
+    });
+
     return report;
   }
 }
