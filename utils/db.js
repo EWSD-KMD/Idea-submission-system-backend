@@ -6,6 +6,7 @@ export const fetchPaginatedData = async (
   page,
   limit,
   filter = {},
+  select,
   include,
   sort = { createdAt: SortType.DESC }
 ) => {
@@ -18,6 +19,7 @@ export const fetchPaginatedData = async (
     ...(include && { include }),
     skip,
     take: limit,
+    ...(select && { select }),
     ...(sort && { orderBy: sort }),
   });
 
