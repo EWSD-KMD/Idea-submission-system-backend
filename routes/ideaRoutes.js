@@ -13,28 +13,46 @@ import {
   getAllComments,
   createComment,
   updateComment,
-  deleteComment
+  deleteComment,
 } from "../controllers/commentController.js";
 
-import { authenticateToken } from "../middlewares/authMiddleware.js";
+import {
+  authenticateToken,
+  disabledUserChecker,
+} from "../middlewares/authMiddleware.js";
 import { validateCreateReportIdea } from "../validator/validator.js";
 
 const router = express.Router();
 
 router.get("/", authenticateToken, getAllIdeas);
 router.get("/:id", getIdeaById);
-router.post("/", authenticateToken, createIdea);
-router.put("/:id", authenticateToken, updateIdea);
-router.delete("/:id", authenticateToken, deleteIdea);
-router.post("/:id/like", authenticateToken, likeIdea);
-router.post("/:id/dislike", authenticateToken, dislikeIdea);
+router.post("/", authenticateToken, disabledUserChecker, createIdea);
+router.put("/:id", authenticateToken, disabledUserChecker, updateIdea);
+router.delete("/:id", authenticateToken, disabledUserChecker, deleteIdea);
+router.post("/:id/like", authenticateToken, disabledUserChecker, likeIdea);
+router.post(
+  "/:id/dislike",
+  authenticateToken,
+  disabledUserChecker,
+  dislikeIdea
+);
 router.post(
   "/:id/report",
   authenticateToken,
   validateCreateReportIdea,
   reportIdea
 );
-router.get("/:ideaId/comments", authenticateToken, getAllComments);
-router.post("/:ideaId/comments", authenticateToken, createComment);
+router.get(
+  "/:ideaId/comments",
+  authenticateToken,
+  disabledUserChecker,
+  getAllComments
+);
+router.post(
+  "/:ideaId/comments",
+  authenticateToken,
+  disabledUserChecker,
+  createComment
+);
 
 export default router;

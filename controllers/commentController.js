@@ -1,3 +1,4 @@
+import { Status } from "../constants/common.js";
 import prisma from "../prisma/prismaClient.js";
 import response from "../utils/response.js";
 import { userSession } from "../utils/userSession.js";
@@ -10,8 +11,8 @@ const createNotification = async (fromUserId, ideaId, ideaOwnerId, message) => {
         message,
         userId: ideaOwnerId,
         fromUserId,
-        ideaId
-      }
+        ideaId,
+      },
     });
   }
 };
@@ -24,15 +25,15 @@ export const getAllComments = async (req, res) => {
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
 
+    const filter = { ideaId: parseInt(ideaId, 10), status: Status.SHOW };
+
     const [comments, total] = await Promise.all([
       prisma.comment.findMany({
-        where: {
-          ideaId: parseInt(ideaId, 10)
-        },
+        where: filter,
         skip,
         take: limit,
         orderBy: {
-          createdAt: 'desc'
+          createdAt: "desc",
         },
         select: {
           id: true,
@@ -43,16 +44,14 @@ export const getAllComments = async (req, res) => {
             select: {
               id: true,
               name: true,
-              email: true
-            }
-          }
-        }
+              email: true,
+            },
+          },
+        },
       }),
       prisma.comment.count({
-        where: {
-          ideaId: parseInt(ideaId, 10)
-        }
-      })
+        where: filter,
+      }),
     ]);
 
     const totalPages = Math.ceil(total / limit);
@@ -62,7 +61,7 @@ export const getAllComments = async (req, res) => {
       page,
       limit,
       total,
-      totalPages
+      totalPages,
     });
   } catch (err) {
     console.error("Error fetching comments:", err);
@@ -84,15 +83,15 @@ export const createComment = async (req, res) => {
       where: { id: parseInt(ideaId, 10) },
       select: {
         userId: true,
-        title: true
-      }
+        title: true,
+      },
     });
 
     const comment = await prisma.comment.create({
       data: {
         content,
         ideaId: parseInt(ideaId, 10),
-        userId
+        userId,
       },
       select: {
         id: true,
@@ -103,10 +102,10 @@ export const createComment = async (req, res) => {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     //Send Email to idea owner
@@ -137,7 +136,7 @@ export const updateComment = async (req, res) => {
     }
 
     const comment = await prisma.comment.findUnique({
-      where: { id: parseInt(id, 10) }
+      where: { id: parseInt(id, 10) },
     });
 
     if (!comment) {
@@ -160,10 +159,10 @@ export const updateComment = async (req, res) => {
           select: {
             id: true,
             name: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     return response.success(res, updatedComment);
@@ -179,7 +178,7 @@ export const deleteComment = async (req, res) => {
     const userId = userSession.getUserId();
 
     const comment = await prisma.comment.findUnique({
-      where: { id: parseInt(id, 10) }
+      where: { id: parseInt(id, 10) },
     });
 
     if (!comment) {
@@ -191,7 +190,7 @@ export const deleteComment = async (req, res) => {
     }
 
     await prisma.comment.delete({
-      where: { id: parseInt(id, 10) }
+      where: { id: parseInt(id, 10) },
     });
 
     return response.success(res, { message: "Comment deleted successfully" });
