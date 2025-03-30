@@ -1,14 +1,27 @@
 import express from "express";
 import {
   updateComment,
-  deleteComment
+  deleteComment,
 } from "../controllers/commentController.js";
-import { authenticateToken } from "../middlewares/authMiddleware.js";
+import {
+  authenticateToken,
+  disabledUserChecker,
+} from "../middlewares/authMiddleware.js";
 
 const router = express.Router();
 
 router.use(authenticateToken);
-router.put("/comments/:id", updateComment);
-router.delete("/comments/:id", deleteComment);
+router.put(
+  "/comments/:id",
+  authenticateToken,
+  disabledUserChecker,
+  updateComment
+);
+router.delete(
+  "/comments/:id",
+  authenticateToken,
+  disabledUserChecker,
+  deleteComment
+);
 
 export default router;

@@ -1,3 +1,4 @@
+import { Status } from "../constants/common.js";
 import prisma from "../prisma/prismaClient.js";
 import { ideaService } from "../services/idea.service.js";
 import response from "../utils/response.js";
@@ -25,11 +26,11 @@ export const getAllComments = async (req, res) => {
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
 
+    const filter = { ideaId: parseInt(ideaId, 10), status: Status.SHOW };
+
     const [comments, total] = await Promise.all([
       prisma.comment.findMany({
-        where: {
-          ideaId: parseInt(ideaId, 10),
-        },
+        where: filter,
         skip,
         take: limit,
         orderBy: {
@@ -50,9 +51,7 @@ export const getAllComments = async (req, res) => {
         },
       }),
       prisma.comment.count({
-        where: {
-          ideaId: parseInt(ideaId, 10),
-        },
+        where: filter,
       }),
     ]);
 
