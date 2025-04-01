@@ -1,5 +1,5 @@
 import prisma from "../prisma/prismaClient.js";
-import * as response from "../utils/response.js";
+import response from "../utils/response.js";
 export const getAllPermissions = async (req, res) => {
   try {
     const permissions = await prisma.permission.findMany({
@@ -8,7 +8,6 @@ export const getAllPermissions = async (req, res) => {
         rolePermissions: true,
       },
     });
-
     return response.success(res, permissions);
   } catch (err) {
     console.error("Error fetching permissions:", err);
