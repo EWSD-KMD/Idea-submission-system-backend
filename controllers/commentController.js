@@ -48,6 +48,14 @@ export const getAllComments = async (req, res) => {
               email: true,
             },
           },
+          idea: {
+            select: {
+              departmentId: true,
+              department: true,
+              category: true,
+              categoryId: true,
+            },
+          },
         },
       }),
       prisma.comment.count({
