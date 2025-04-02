@@ -10,7 +10,21 @@ export const getAllRoles = async (req, res) => {
 
     // Fetch roles and count total roles concurrently
     const [roles, total] = await Promise.all([
-      prisma.role.findMany({ skip, take: limit }),
+      prisma.role.findMany({
+        skip,
+        take: limit,
+        include: {
+          rolePermissions: {
+            include: {
+              permission: {
+                include: {
+                  menu: true,
+                },
+              },
+            },
+          },
+        },
+      }),
       prisma.role.count(),
     ]);
 
@@ -28,6 +42,7 @@ export const getAllRoles = async (req, res) => {
     return response.error(res, 500, "Error fetching roles");
   }
 };
+
 
 export const getRoleById = async (req, res) => {
   try {
@@ -47,12 +62,26 @@ export const getRoleById = async (req, res) => {
 
 export const createRole = async (req, res) => {
   try {
-    const { name } = req.body;
+    const { name, permissionIds } = req.body;
     if (!name) {
       return response.error(res, 400, "Role name is required");
     }
     const newRole = await prisma.role.create({
-      data: { name },
+      data: {
+        name,
+        rolePermissions: {
+          create: permissionIds.map(permissionId => ({
+            permission: { connect: { id: permissionId } }
+          }))
+        }
+      },
+      include: {
+        rolePermissions: {
+          include: {
+            permission: true
+          }
+        }
+      }
     });
     return response.success(res, newRole);
   } catch (err) {
