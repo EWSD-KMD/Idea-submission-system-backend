@@ -39,7 +39,7 @@ This project is a secure, web-enabled role-based system for collecting improveme
 
 2. **Environment Setup:**
 
-Create a .env file in the root directory of your project (at the same level as package.json). Add your PostgreSQL connection string. For example:
+Create a .env  file in the root directory of your project (at the same level as package.json). Add your PostgreSQL connection string. For example:
 
 ```bash
     DATABASE_URL="postgresql://username:password@localhost:5432/database_name?schema=public"
