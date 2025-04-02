@@ -5,9 +5,13 @@ export const getAllPermissions = async (req, res) => {
     const permissions = await prisma.permission.findMany({
       include: {
         menu: true,
-        rolePermissions: true,
-      },
-    });
+        rolePermissions: {
+          include: {
+            role: true
+          }
+        }
+      }
+    });    
     return response.success(res, permissions);
   } catch (err) {
     console.error("Error fetching permissions:", err);
