@@ -47,6 +47,15 @@ export const getAllIdeas = async (req, res) => {
         include: {
           category: true,
           department: true,
+          academicYear: {
+            select: {
+              id: true,
+              year: true,
+              startDate: true,
+              closureDate: true,
+              finalClosureDate: true,
+            },
+          },
           user: {
             select: {
               id: true,

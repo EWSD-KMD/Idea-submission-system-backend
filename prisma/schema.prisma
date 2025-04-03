@@ -123,6 +123,8 @@ model Idea {
   departmentId Int
   user        User      @relation(fields: [userId], references: [id])
   userId      Int
+  academicYear AcademicYear @relation(fields: [academicYearId], references: [id])
+  academicYearId  Int   @default(0)
   
   // Metrics
   likes       Int       @default(0)
@@ -162,6 +164,8 @@ model AcademicYear {
   closureDate       DateTime
   finalClosureDate  DateTime
   status            Status    @default(SHOW)
+  ideas             Idea[]
+  masterSetting     MasterSetting?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 }
@@ -205,4 +209,12 @@ model Notification {
   
   createdAt   DateTime        @default(now())
   updatedAt   DateTime        @updatedAt
+}
+
+model MasterSetting {
+  id                      Int           @id @default(autoincrement())
+  currentAcademicYearId   Int           @default(0) @unique()
+  currentAcademicYear     AcademicYear  @relation(fields: [currentAcademicYearId], references: [id])      
+  createdAt               DateTime      @default(now())
+  updatedAt               DateTime      @updatedAt
 }
