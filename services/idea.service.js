@@ -4,6 +4,7 @@ import { emailService } from "./email.service.js";
 import prisma from "../prisma/prismaClient.js";
 import { getPrettyDate } from "../utils/common.js";
 import { userSession } from "../utils/userSession.js";
+import { AppError } from "../utils/appError.js";
 
 class IdeaService {
   async #sendEmailCreateIdea(
@@ -71,7 +72,10 @@ class IdeaService {
 
   async createIdea({ title, description, categoryId, departmentId }) {
     const userId = userSession.getUserId();
-
+    const masterSetting = await prisma.masterSetting.findFirst();
+    if (!masterSetting) {
+      throw new AppError("master setting not found", 500);
+    }
     const newIdea = await prisma.idea.create({
       data: {
         title,
@@ -79,10 +83,18 @@ class IdeaService {
         categoryId,
         departmentId,
         userId,
+        academicYearId: masterSetting.currentAcademicYearId,
       },
       include: {
         category: true,
         department: true,
+        academicYear: {
+          id: true,
+          year: true,
+          startDate: true,
+          closureDate: true,
+          finalClosureDate: true,
+        },
         user: {
           select: {
             id: true,

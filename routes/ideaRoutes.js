@@ -21,12 +21,22 @@ import {
   disabledUserChecker,
 } from "../middlewares/authMiddleware.js";
 import { validateCreateReportIdea } from "../validator/validator.js";
+import {
+  closureDateChecker,
+  finalClosureDateChecker,
+} from "../middlewares/closureDateMiddleware.js";
 
 const router = express.Router();
 
 router.get("/", authenticateToken, getAllIdeas);
 router.get("/:id", getIdeaById);
-router.post("/", authenticateToken, disabledUserChecker, createIdea);
+router.post(
+  "/",
+  authenticateToken,
+  disabledUserChecker,
+  closureDateChecker,
+  createIdea
+);
 router.put("/:id", authenticateToken, disabledUserChecker, updateIdea);
 router.delete("/:id", authenticateToken, disabledUserChecker, deleteIdea);
 router.post("/:id/like", authenticateToken, disabledUserChecker, likeIdea);
@@ -52,6 +62,7 @@ router.post(
   "/:ideaId/comments",
   authenticateToken,
   disabledUserChecker,
+  finalClosureDateChecker,
   createComment
 );
 

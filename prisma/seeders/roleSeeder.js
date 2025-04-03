@@ -1,9 +1,7 @@
-import prisma from "../prismaClient.js";
-
-export const seedRoles = async () => {
+export const seedRoles = async (prismaTx) => {
   console.log("🌱 Seeding Roles...");
 
-  await prisma.role.createMany({
+  await prismaTx.role.createMany({
     data: [
       {
         name: "QA_COORDINATOR",
