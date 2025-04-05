@@ -44,15 +44,63 @@ export const getUserById = async (req, res) => {
         email: true,
         name: true,
         roleId: true,
-        role: true,
         createdAt: true,
         updatedAt: true,
+        role: {
+          select: {
+            id: true,
+            name: true,
+            rolePermissions: {
+              select: {
+                permission: {
+                  select: {
+                    id: true,
+                    operation: true,
+                    menu: {
+                      select: {
+                        id: true,
+                        name: true
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
       },
     });
+
     if (!user) {
       return response.error(res, 404, "User not found");
     }
-    return response.success(res, user);
+
+    // Transform the data to make it more readable
+    const transformedUser = {
+      ...user,
+      role: {
+        id: user.role.id,
+        name: user.role.name,
+        menus: user.role.rolePermissions.reduce((acc, rp) => {
+          const menu = rp.permission.menu;
+          const existingMenu = acc.find(m => m.id === menu.id);
+          
+          if (existingMenu) {
+            existingMenu.permissions.push(rp.permission.operation);
+          } else {
+            acc.push({
+              id: menu.id,
+              name: menu.name,
+              permissions: [rp.permission.operation]
+            });
+          }
+          
+          return acc;
+        }, [])
+      }
+    };
+
+    return response.success(res, transformedUser);
   } catch (err) {
     console.error("Error fetching user:", err);
     return response.error(res, 500, "Error fetching user");
