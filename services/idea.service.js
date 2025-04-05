@@ -89,11 +89,13 @@ class IdeaService {
         category: true,
         department: true,
         academicYear: {
-          id: true,
-          year: true,
-          startDate: true,
-          closureDate: true,
-          finalClosureDate: true,
+          select: {
+            id: true,
+            year: true,
+            startDate: true,
+            closureDate: true,
+            finalClosureDate: true,
+          },
         },
         user: {
           select: {
