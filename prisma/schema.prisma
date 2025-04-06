@@ -12,6 +12,10 @@ enum Operation {
   READ
   UPDATE
   DELETE
+  EXPORT
+  HIDE
+  DISABLE
+  FULLY_DISABLE
 }
 
 enum Status {
