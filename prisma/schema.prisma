@@ -16,6 +16,7 @@ enum Operation {
   HIDE
   DISABLE
   FULLY_DISABLE
+  ENABLE
 }
 
 enum Status {
