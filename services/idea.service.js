@@ -70,7 +70,7 @@ class IdeaService {
     }
   }
 
-  async createIdea({ title, description, categoryId, departmentId }) {
+  async createIdea({ title, description, categoryId, departmentId, anonymous }) {
     const userId = userSession.getUserId();
     const masterSetting = await prisma.masterSetting.findFirst();
     if (!masterSetting) {
@@ -83,6 +83,7 @@ class IdeaService {
         categoryId,
         departmentId,
         userId,
+        anonymous,
         academicYearId: masterSetting.currentAcademicYearId,
       },
       include: {

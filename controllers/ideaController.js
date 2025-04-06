@@ -32,6 +32,7 @@ export const getAllIdeas = async (req, res) => {
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
+    
     const where = {
       status: status || "SHOW",
       ...(departmentId && { departmentId: parseInt(departmentId, 10) }),
@@ -61,6 +62,12 @@ export const getAllIdeas = async (req, res) => {
               id: true,
               name: true,
               email: true,
+              department: {
+                select: {
+                  id: true,
+                  name: true
+                }
+              }
             },
           },
           comments: {
@@ -69,13 +76,23 @@ export const getAllIdeas = async (req, res) => {
                 select: {
                   id: true,
                   name: true,
+                  department: {
+                    select: {
+                      id: true,
+                      name: true
+                    }
+                  }
                 },
               },
             },
+            orderBy: {
+              createdAt: 'desc'
+            }
           },
           _count: {
             select: {
               comments: true,
+              reports: true
             },
           },
         },
@@ -86,10 +103,28 @@ export const getAllIdeas = async (req, res) => {
       prisma.idea.count({ where }),
     ]);
 
+    // Transform ideas to handle anonymous posts
+    const transformedIdeas = ideas.map(idea => ({
+      ...idea,
+      user: idea.anonymous ? {
+        id: idea.user.id,
+        name: "Anonymous",
+        department: idea.user.department
+      } : idea.user,
+      comments: idea.comments.map(comment => ({
+        ...comment,
+        user: idea.anonymous ? {
+          id: comment.user.id,
+          name: comment.user.id === idea.userId ? "Anonymous (Author)" : comment.user.name,
+          department: comment.user.department
+        } : comment.user
+      }))
+    }));
+
     const totalPages = Math.ceil(total / limit);
 
     return response.success(res, {
-      ideas,
+      ideas: transformedIdeas,
       page,
       limit,
       total,
@@ -153,12 +188,13 @@ export const getIdeaById = async (req, res) => {
 
 export const createIdea = async (req, res) => {
   try {
-    const { title, description, categoryId, departmentId } = req.body;
+    const { title, description, categoryId, departmentId, anonymous=false } = req.body;
     const newIdea = await ideaService.createIdea({
       title,
       description,
       categoryId,
       departmentId,
+      anonymous
     });
 
     return response.success(res, newIdea);
@@ -171,7 +207,7 @@ export const createIdea = async (req, res) => {
 export const updateIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { title, description, categoryId, departmentId, status } = req.body;
+    const { title, description, categoryId, departmentId, anonymous=false, status } = req.body;
 
     const updatedIdea = await prisma.idea.update({
       where: { id },
@@ -180,6 +216,7 @@ export const updateIdea = async (req, res) => {
         description,
         categoryId,
         departmentId,
+        anonymous,
         status,
       },
       include: {

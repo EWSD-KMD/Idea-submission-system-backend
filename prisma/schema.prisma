@@ -115,6 +115,7 @@ model Idea {
   title       String
   description String
   status      Status    @default(SHOW)
+  anonymous   Boolean   @default(false)
   
   // Relations
   category    Category  @relation(fields: [categoryId], references: [id])
