@@ -92,13 +92,36 @@ export const createRole = async (req, res) => {
 
 export const updateRole = async (req, res) => {
   try {
-    const id = parseInt(req.params.id, 10);
-    const { name } = req.body;
-    const updatedRole = await prisma.role.update({
-      where: { id },
-      data: { name },
-    });
-    return response.success(res, updatedRole);
+      const id = parseInt(req.params.id, 10);
+      const { name, permissionIds } = req.body;
+
+      const existingRole = await prisma.role.findUnique({
+        where: { id: parseInt(id) }
+      });
+
+      if (!existingRole) {
+        throw new NotFoundError('Role not found');
+      }
+
+      const role = await prisma.role.update({
+        where: { id: parseInt(id) },
+        data: {
+          name,
+          rolePermissions: {
+            deleteMany: {}, // Remove all existing permissions
+            create: permissionIds.map(permissionId => ({
+              permission: { connect: { id: permissionId } }
+            }))
+          }
+        },
+        include: {
+          rolePermissions: {
+            include: {
+              permission: true
+            }
+          }
+        }
+      });
   } catch (err) {
     console.error("Error updating role:", err);
     return response.error(res, 500, "Error updating role");
