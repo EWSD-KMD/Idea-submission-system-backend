@@ -32,7 +32,7 @@ export const getAllIdeas = async (req, res) => {
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
-    
+
     const where = {
       status: status || "SHOW",
       ...(departmentId && { departmentId: parseInt(departmentId, 10) }),
@@ -65,9 +65,15 @@ export const getAllIdeas = async (req, res) => {
               department: {
                 select: {
                   id: true,
-                  name: true
-                }
-              }
+                  name: true,
+                },
+              },
+            },
+          },
+          files: {
+            select: {
+              id: true,
+              fileName: true,
             },
           },
           comments: {
@@ -79,20 +85,20 @@ export const getAllIdeas = async (req, res) => {
                   department: {
                     select: {
                       id: true,
-                      name: true
-                    }
-                  }
+                      name: true,
+                    },
+                  },
                 },
               },
             },
             orderBy: {
-              createdAt: 'desc'
-            }
+              createdAt: "desc",
+            },
           },
           _count: {
             select: {
               comments: true,
-              reports: true
+              reports: true,
             },
           },
         },
@@ -104,21 +110,28 @@ export const getAllIdeas = async (req, res) => {
     ]);
 
     // Transform ideas to handle anonymous posts
-    const transformedIdeas = ideas.map(idea => ({
+    const transformedIdeas = ideas.map((idea) => ({
       ...idea,
-      user: idea.anonymous ? {
-        id: idea.user.id,
-        name: "Anonymous",
-        department: idea.user.department
-      } : idea.user,
-      comments: idea.comments.map(comment => ({
+      user: idea.anonymous
+        ? {
+            id: idea.user.id,
+            name: "Anonymous",
+            department: idea.user.department,
+          }
+        : idea.user,
+      comments: idea.comments.map((comment) => ({
         ...comment,
-        user: idea.anonymous ? {
-          id: comment.user.id,
-          name: comment.user.id === idea.userId ? "Anonymous (Author)" : comment.user.name,
-          department: comment.user.department
-        } : comment.user
-      }))
+        user: idea.anonymous
+          ? {
+              id: comment.user.id,
+              name:
+                comment.user.id === idea.userId
+                  ? "Anonymous (Author)"
+                  : comment.user.name,
+              department: comment.user.department,
+            }
+          : comment.user,
+      })),
     }));
 
     const totalPages = Math.ceil(total / limit);
@@ -167,6 +180,12 @@ export const getIdeaById = async (req, res) => {
             },
           },
         },
+        files: {
+          select: {
+            id: true,
+            fileName: true,
+          },
+        },
       },
     });
 
@@ -188,13 +207,21 @@ export const getIdeaById = async (req, res) => {
 
 export const createIdea = async (req, res) => {
   try {
-    const { title, description, categoryId, departmentId, anonymous=false } = req.body;
+    const {
+      title,
+      description,
+      categoryId,
+      departmentId,
+      anonymous = false,
+      files,
+    } = req.body;
     const newIdea = await ideaService.createIdea({
       title,
       description,
       categoryId,
       departmentId,
-      anonymous
+      anonymous,
+      files,
     });
 
     return response.success(res, newIdea);
@@ -207,7 +234,14 @@ export const createIdea = async (req, res) => {
 export const updateIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { title, description, categoryId, departmentId, anonymous=false, status } = req.body;
+    const {
+      title,
+      description,
+      categoryId,
+      departmentId,
+      anonymous = false,
+      status,
+    } = req.body;
 
     const updatedIdea = await prisma.idea.update({
       where: { id },
@@ -317,6 +351,86 @@ export const reportIdea = async (req, res, next) => {
     const data = await ideaReportService.createIdeaReport(id, type, detail);
 
     return response.success(res, data);
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const uploadIdeaFile = async (req, res, next) => {
+  try {
+    const files = req.files;
+    console.log(files);
+    const data = await ideaService.uploadIdeaFile(files);
+    return response.success(res, data);
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const getIdeaFile = async (req, res, next) => {
+  try {
+    const fileId = req.params.fileId;
+    const ideaFile = await prisma.ideaFile.findUnique({
+      where: { id: fileId },
+    });
+    if (!ideaFile) {
+      throw new AppError("File not found", 404);
+    }
+    const { Body, ContentType, ContentLength, ContentDisposition } =
+      await ideaService.getIdeaFile(fileId);
+
+    // Detect if Body is a stream or buffer
+    const isReadable = Body && typeof Body.pipe === "function";
+
+    res.setHeader("Content-Type", ContentType || "application/octet-stream");
+    if (ContentLength) res.setHeader("Content-Length", ContentLength);
+    res.setHeader(
+      "Content-Disposition",
+      ContentDisposition || `inline; filename="${ideaFile.fileName}"`
+    );
+
+    if (isReadable) {
+      Body.pipe(res); // pipe stream directly
+    } else {
+      // fallback: if Body is a buffer or Uint8Array
+      res.end(Body);
+    }
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const downLoadIdeaFile = async (req, res, next) => {
+  try {
+    const fileId = req.params.fileId;
+    const ideaFile = await prisma.ideaFile.findUnique({
+      where: { id: fileId },
+    });
+    if (!ideaFile) {
+      throw new AppError("File not found", 404);
+    }
+    const { Body, ContentType, ContentLength, ContentDisposition } =
+      await ideaService.getIdeaFile(fileId);
+
+    // Detect if Body is a stream or buffer
+    const isReadable = Body && typeof Body.pipe === "function";
+
+    res.setHeader("Content-Type", ContentType || "application/octet-stream");
+    if (ContentLength) res.setHeader("Content-Length", ContentLength);
+    res.setHeader(
+      "Content-Disposition",
+      ContentDisposition || `attachment; filename="${ideaFile.fileName}"`
+    );
+
+    if (isReadable) {
+      Body.pipe(res); // pipe stream directly
+    } else {
+      // fallback: if Body is a buffer or Uint8Array
+      res.end(Body);
+    }
   } catch (err) {
     console.error("Error creating report:", err);
     next(err);

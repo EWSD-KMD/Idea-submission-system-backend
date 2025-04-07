@@ -8,6 +8,9 @@ import {
   likeIdea,
   dislikeIdea,
   reportIdea,
+  uploadIdeaFile,
+  getIdeaFile,
+  downLoadIdeaFile,
 } from "../controllers/ideaController.js";
 import {
   getAllComments,
@@ -25,6 +28,7 @@ import {
   closureDateChecker,
   finalClosureDateChecker,
 } from "../middlewares/closureDateMiddleware.js";
+import fileUpload from "../middlewares/fileUpload.js";
 
 const router = express.Router();
 
@@ -65,5 +69,16 @@ router.post(
   finalClosureDateChecker,
   createComment
 );
+
+router.post(
+  "/file/upload",
+  authenticateToken,
+  fileUpload.array("file", 10),
+  uploadIdeaFile
+);
+
+router.get("/file/view/:fileId", authenticateToken, getIdeaFile);
+
+router.get("/file/download/:fileId", authenticateToken, downLoadIdeaFile);
 
 export default router;

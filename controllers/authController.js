@@ -4,8 +4,8 @@ import response from "../utils/response.js";
 
 export const login = async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    const data = await authService.login(email, password);
+    const { email, password, source } = req.body;
+    const data = await authService.login(email, password, source);
     return response.success(res, data);
   } catch (error) {
     console.error(error);
