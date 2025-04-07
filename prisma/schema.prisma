@@ -135,6 +135,8 @@ model Idea {
   comments    Comment[]
 
   reports    Report[]
+
+  files      IdeaFile[]
   notifications Notification[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
@@ -217,4 +219,14 @@ model MasterSetting {
   currentAcademicYear     AcademicYear  @relation(fields: [currentAcademicYearId], references: [id])      
   createdAt               DateTime      @default(now())
   updatedAt               DateTime      @updatedAt
+}
+
+model IdeaFile {
+  id            String   @id @default(uuid()) @db.Uuid
+  fileName      String
+  idea          Idea            @relation(fields: [ideaId], references: [id])
+  ideaId        Int
+  createdBy     Int   
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 }

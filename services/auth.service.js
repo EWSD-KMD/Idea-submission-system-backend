@@ -38,11 +38,15 @@ class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async login(email, password) {
+  async login(email, password, source) {
     const user = await prisma.user.findUnique({
       where: { email },
     });
     if (!user) {
+      throw new AppError("invalid username or password", 400);
+    }
+
+    if (source !== user.type) {
       throw new AppError("invalid username or password", 400);
     }
     if (!(await this.#isValidPassword(password, user.password))) {

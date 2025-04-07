@@ -1,4 +1,6 @@
 import moment from "moment";
+import fs from "fs";
+import path from "path";
 
 import prisma from "../prisma/prismaClient.js";
 import { Role } from "../constants/common.js";
@@ -22,3 +24,13 @@ export const getQaManagerEmailsByDepartmentId = async (departmentId) => {
   }
   return users.map((user) => user.email);
 };
+
+export function ensureTmpDir() {
+  const tmpDir = path.resolve("tmp");
+  if (!fs.existsSync(tmpDir)) {
+    fs.mkdirSync(tmpDir, { recursive: true });
+    console.log("✅ /tmp directory created.");
+  } else {
+    console.log("📁 /tmp directory already exists.");
+  }
+}

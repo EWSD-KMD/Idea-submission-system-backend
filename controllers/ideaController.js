@@ -63,6 +63,12 @@ export const getAllIdeas = async (req, res) => {
               email: true,
             },
           },
+          files: {
+            select: {
+              id: true,
+              fileName: true,
+            },
+          },
           comments: {
             include: {
               user: {
@@ -132,6 +138,12 @@ export const getIdeaById = async (req, res) => {
             },
           },
         },
+        files: {
+          select: {
+            id: true,
+            fileName: true,
+          },
+        },
       },
     });
 
@@ -153,12 +165,13 @@ export const getIdeaById = async (req, res) => {
 
 export const createIdea = async (req, res) => {
   try {
-    const { title, description, categoryId, departmentId } = req.body;
+    const { title, description, categoryId, departmentId, files } = req.body;
     const newIdea = await ideaService.createIdea({
       title,
       description,
       categoryId,
       departmentId,
+      files,
     });
 
     return response.success(res, newIdea);
@@ -280,6 +293,86 @@ export const reportIdea = async (req, res, next) => {
     const data = await ideaReportService.createIdeaReport(id, type, detail);
 
     return response.success(res, data);
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const uploadIdeaFile = async (req, res, next) => {
+  try {
+    const files = req.files;
+    console.log(files);
+    const data = await ideaService.uploadIdeaFile(files);
+    return response.success(res, data);
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const getIdeaFile = async (req, res, next) => {
+  try {
+    const fileId = req.params.fileId;
+    const ideaFile = await prisma.ideaFile.findUnique({
+      where: { id: fileId },
+    });
+    if (!ideaFile) {
+      throw new AppError("File not found", 404);
+    }
+    const { Body, ContentType, ContentLength, ContentDisposition } =
+      await ideaService.getIdeaFile(fileId);
+
+    // Detect if Body is a stream or buffer
+    const isReadable = Body && typeof Body.pipe === "function";
+
+    res.setHeader("Content-Type", ContentType || "application/octet-stream");
+    if (ContentLength) res.setHeader("Content-Length", ContentLength);
+    res.setHeader(
+      "Content-Disposition",
+      ContentDisposition || `inline; filename="${ideaFile.fileName}"`
+    );
+
+    if (isReadable) {
+      Body.pipe(res); // pipe stream directly
+    } else {
+      // fallback: if Body is a buffer or Uint8Array
+      res.end(Body);
+    }
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const downLoadIdeaFile = async (req, res, next) => {
+  try {
+    const fileId = req.params.fileId;
+    const ideaFile = await prisma.ideaFile.findUnique({
+      where: { id: fileId },
+    });
+    if (!ideaFile) {
+      throw new AppError("File not found", 404);
+    }
+    const { Body, ContentType, ContentLength, ContentDisposition } =
+      await ideaService.getIdeaFile(fileId);
+
+    // Detect if Body is a stream or buffer
+    const isReadable = Body && typeof Body.pipe === "function";
+
+    res.setHeader("Content-Type", ContentType || "application/octet-stream");
+    if (ContentLength) res.setHeader("Content-Length", ContentLength);
+    res.setHeader(
+      "Content-Disposition",
+      ContentDisposition || `attachment; filename="${ideaFile.fileName}"`
+    );
+
+    if (isReadable) {
+      Body.pipe(res); // pipe stream directly
+    } else {
+      // fallback: if Body is a buffer or Uint8Array
+      res.end(Body);
+    }
   } catch (err) {
     console.error("Error creating report:", err);
     next(err);

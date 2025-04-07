@@ -5,6 +5,7 @@ import prisma from "../prisma/prismaClient.js";
 import { getPrettyDate } from "../utils/common.js";
 import { userSession } from "../utils/userSession.js";
 import { AppError } from "../utils/appError.js";
+import { fileService } from "./file.service.js";
 
 class IdeaService {
   async #sendEmailCreateIdea(
@@ -70,7 +71,7 @@ class IdeaService {
     }
   }
 
-  async createIdea({ title, description, categoryId, departmentId }) {
+  async createIdea({ title, description, categoryId, departmentId, files }) {
     const userId = userSession.getUserId();
     const masterSetting = await prisma.masterSetting.findFirst();
     if (!masterSetting) {
@@ -106,6 +107,22 @@ class IdeaService {
         },
       },
     });
+
+    if (files?.length > 0) {
+      const ideaFileArr = files.map((file) => {
+        return {
+          id: file.fileId,
+          fileName: file.fileName,
+          ideaId: newIdea.id,
+          createdBy: userSession.getUserId(),
+        };
+      });
+
+      console.log(ideaFileArr);
+      await prisma.ideaFile.createMany({
+        data: ideaFileArr,
+      });
+    }
 
     this.#sendEmailCreateIdea(departmentId, {
       ownerProfileLink: `${process.env.FRONT_END_BASE_URL}/users/${userId}`,
@@ -161,6 +178,39 @@ class IdeaService {
       ideaLink: `${process.env.FRONT_END_BASE_URL}/ideas/${ideaId}`,
     });
     return { userId, idea, comment };
+  }
+
+  async uploadIdeaFile(files) {
+    const filesPromises = files.map((file) => {
+      const uuid = crypto.randomUUID();
+      const filePath = `ideas/${uuid}`;
+      console.log("fileId", uuid);
+      return {
+        fileId: uuid,
+        source: file.path,
+        dest: filePath,
+        fileType: file.mimetype,
+        fileName: file.originalname,
+      };
+    });
+    const data = await Promise.all(
+      filesPromises.map(async (item) => {
+        return await fileService.uploadFile(
+          item.source,
+          item.dest,
+          item.fileType,
+          item.fileId,
+          item.fileName
+        );
+      })
+    );
+    return data;
+  }
+
+  async getIdeaFile(fileId) {
+    const key = `ideas/${fileId}`;
+
+    return await fileService.getFile(key);
   }
 }
 

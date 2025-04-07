@@ -3,8 +3,11 @@ import cors from "cors";
 
 import errorHandler from "./middlewares/errorHandlers.js";
 import routes from "./routes/index.js";
+import { ensureTmpDir } from "./utils/common.js";
 
 const app = express();
+
+ensureTmpDir();
 
 app.use(cors());
 
