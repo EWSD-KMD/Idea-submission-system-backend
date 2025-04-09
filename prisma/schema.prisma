@@ -17,6 +17,7 @@ enum Operation {
   DISABLE
   FULLY_DISABLE
   ENABLE
+  EXPORT
 }
 
 enum Status {
