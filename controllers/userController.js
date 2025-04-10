@@ -13,7 +13,7 @@ export const getAllUsers = async (req, res) => {
       "user",
       page,
       limit,
-      {},
+      { deleted: false },
       {
         id: true,
         email: true,
@@ -174,13 +174,69 @@ export const updateUser = async (req, res) => {
 export const deleteUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    await prisma.user.delete({
-      where: { id },
+    
+    // Check if user exists and is not already deleted
+    const user = await prisma.user.findUnique({
+      where: { id }
     });
-    return response.success(res, { message: "User deleted successfully" });
+
+    if (!user) {
+      return response.error(res, 404, "User not found");
+    }
+
+    if (user.deleted) {
+      return response.error(res, 400, "User already deleted");
+    }
+
+    // Soft delete the user
+    await prisma.user.update({
+      where: { id },
+      data: {
+        deleted: true,
+        deletedAt: new Date()
+      }
+    });
+
+    return response.success(res, { 
+      message: "User deleted successfully",
+      deletedAt: new Date()
+    });
   } catch (err) {
     console.error("Error deleting user:", err);
     return response.error(res, 500, "Error deleting user");
+  }
+};
+
+export const restoreUser = async (req, res) => {
+  try {
+    const id = parseInt(req.params.id, 10);
+    
+    const user = await prisma.user.findUnique({
+      where: { id }
+    });
+
+    if (!user) {
+      return response.error(res, 404, "User not found");
+    }
+
+    if (!user.deleted) {
+      return response.error(res, 400, "User is not deleted");
+    }
+
+    await prisma.user.update({
+      where: { id },
+      data: {
+        deleted: false,
+        deletedAt: null
+      }
+    });
+
+    return response.success(res, { 
+      message: "User restored successfully" 
+    });
+  } catch (err) {
+    console.error("Error restoring user:", err);
+    return response.error(res, 500, "Error restoring user");
   }
 };
 

@@ -87,6 +87,8 @@ model User {
   type         UserType @default(USER) 
   passwordUpdatedAt DateTime?
   disabledInd   Boolean @default(false)
+  deleted    Boolean   @default(false)
+  deletedAt  DateTime?
 }
 
 model RefreshToken {
