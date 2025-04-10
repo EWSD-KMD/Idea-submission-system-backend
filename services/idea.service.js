@@ -6,6 +6,7 @@ import { getPrettyDate } from "../utils/common.js";
 import { userSession } from "../utils/userSession.js";
 import { AppError } from "../utils/appError.js";
 import { fileService } from "./file.service.js";
+import crypto from "crypto";
 
 class IdeaService {
   async #sendEmailCreateIdea(
