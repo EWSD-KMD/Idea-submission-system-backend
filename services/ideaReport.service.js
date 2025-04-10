@@ -16,7 +16,10 @@ class IdeaReport {
       page,
       limit,
       {},
-      { user: { select: { email: true, name: true } }, idea: true }
+      {
+        user: { select: { email: true, name: true, disabledInd: true } },
+        idea: true,
+      }
     );
     return data;
   }

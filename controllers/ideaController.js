@@ -110,29 +110,46 @@ export const getAllIdeas = async (req, res) => {
     ]);
 
     // Transform ideas to handle anonymous posts
-    const transformedIdeas = ideas.map((idea) => ({
-      ...idea,
-      user: idea.anonymous
-        ? {
-            id: idea.user.id,
-            name: "Anonymous",
-            department: idea.user.department,
-          }
-        : idea.user,
-      comments: idea.comments.map((comment) => ({
-        ...comment,
-        user: idea.anonymous
-          ? {
-              id: comment.user.id,
-              name:
-                comment.user.id === idea.userId
-                  ? "Anonymous (Author)"
-                  : comment.user.name,
-              department: comment.user.department,
-            }
-          : comment.user,
-      })),
-    }));
+    const transformedIdeas = await Promise.all(
+      ideas.map(async (idea) => {
+        const noti = await prisma.notification.findFirst({
+          where: {
+            ideaId: idea.id,
+            fromUserId: userSession.getUserId(),
+            type: {
+              in: ["LIKE", "DISLIKE"],
+            },
+          },
+        });
+        console.log("noti", noti);
+
+        return {
+          ...idea,
+          user: idea.anonymous
+            ? {
+                id: idea.user.id,
+                name: "Anonymous",
+                department: idea.user.department,
+              }
+            : idea.user,
+          comments: idea.comments.map((comment) => ({
+            ...comment,
+            user: idea.anonymous
+              ? {
+                  id: comment.user.id,
+                  name:
+                    comment.user.id === idea.userId
+                      ? "Anonymous (Author)"
+                      : comment.user.name,
+                  department: comment.user.department,
+                }
+              : comment.user,
+          })),
+          likeInd: noti?.type === "LIKE",
+          dislikeInd: noti?.type === "DISLIKE",
+        };
+      })
+    );
 
     const totalPages = Math.ceil(total / limit);
 
