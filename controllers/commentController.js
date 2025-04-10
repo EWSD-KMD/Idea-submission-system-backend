@@ -65,8 +65,16 @@ export const getAllComments = async (req, res) => {
 
     const totalPages = Math.ceil(total / limit);
 
+    const transformedComments = comments.map(comment => ({
+      ...comment,
+      user: comment.anonymous ? {
+        id: comment.user.id,
+        name: "Anonymous"
+      } : comment.user
+    }));
+
     return response.success(res, {
-      comments,
+      comments: transformedComments,
       page,
       limit,
       total,
@@ -81,7 +89,7 @@ export const getAllComments = async (req, res) => {
 export const createComment = async (req, res, next) => {
   try {
     const { ideaId } = req.params;
-    const { content } = req.body;
+    const { content, anonymous = false } = req.body;
 
     if (!content) {
       return response.error(res, 400, "Comment content is required");
@@ -89,7 +97,8 @@ export const createComment = async (req, res, next) => {
 
     const { comment, userId, idea } = await ideaService.commentIdea(
       ideaId,
-      content
+      content,
+      anonymous
     );
 
     // Create notification for idea owner
@@ -97,10 +106,18 @@ export const createComment = async (req, res, next) => {
       userId,
       parseInt(ideaId, 10),
       idea.userId,
-      `commented on your idea "${idea.title}"`
+      `${anonymous ? 'Anonymous user' : 'Someone'} commented on your idea "${idea.title}"`
     );
 
-    return response.success(res, comment);
+    const transformedComment = {
+      ...comment,
+      user: anonymous ? {
+        id: comment.user.id,
+        name: "Anonymous",
+      } : comment.user
+    };
+
+    return response.success(res, transformedComment);
   } catch (err) {
     console.error("Error creating comment:", err);
     next(err);

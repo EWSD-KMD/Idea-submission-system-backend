@@ -143,7 +143,7 @@ class IdeaService {
     return newIdea;
   }
 
-  async commentIdea(ideaId, content) {
+  async commentIdea(ideaId, content, anonymous = false) {
     const userId = userSession.getUserId();
 
     const idea = await prisma.idea.findUnique({
@@ -160,12 +160,14 @@ class IdeaService {
         content,
         ideaId: parseInt(ideaId, 10),
         userId,
+        anonymous
       },
       select: {
         id: true,
         content: true,
         createdAt: true,
         updatedAt: true,
+        anonymous: true,
         user: {
           select: {
             id: true,
