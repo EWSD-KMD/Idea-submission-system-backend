@@ -77,8 +77,8 @@ router.post(
   uploadIdeaFile
 );
 
-router.get("/file/view/:fileId", authenticateToken, getIdeaFile);
+router.get("/file/view/:fileId", getIdeaFile);
 
-router.get("/file/download/:fileId", authenticateToken, downLoadIdeaFile);
+router.get("/file/download/:fileId", downLoadIdeaFile);
 
 export default router;
