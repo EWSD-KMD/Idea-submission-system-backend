@@ -3,6 +3,7 @@ import response from "../utils/response.js";
 import { userSession } from "../utils/userSession.js";
 import { ideaReportService } from "../services/ideaReport.service.js";
 import { ideaService } from "../services/idea.service.js";
+import { streamService } from "../services/streaming.service.js";
 
 const prisma = new PrismaClient();
 
@@ -431,6 +432,15 @@ export const downLoadIdeaFile = async (req, res, next) => {
       // fallback: if Body is a buffer or Uint8Array
       res.end(Body);
     }
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const exportIdea = async (req, res, next) => {
+  try {
+    streamService.streamIdeasToZip(res);
   } catch (err) {
     console.error("Error creating report:", err);
     next(err);
