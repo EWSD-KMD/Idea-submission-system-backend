@@ -16,6 +16,7 @@ import {
   getAllMasterSettingData,
   updateMasterSetting,
 } from "../controllers/masterSettingController.js";
+import { exportIdea } from "../controllers/ideaController.js";
 
 const router = express.Router();
 
@@ -30,5 +31,7 @@ router.put("/user/:id/fullyDisabled", validateDisabledUser, fullyDisabledUser);
 router.get("/masterSetting", getAllMasterSettingData);
 
 router.put("/masterSetting/:masterSettingId", updateMasterSetting);
+
+router.get("/idea/export", exportIdea);
 
 export default router;
