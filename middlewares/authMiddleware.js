@@ -45,7 +45,7 @@ export const disabledUserChecker = async (req, res, next) => {
       throw new AppError("Unauthorized", 401);
     }
     if (user.disabledInd) {
-      throw new AppError("Unauthorized", 401);
+      throw new AppError("User is disabled.", 401);
     }
     next();
   } catch (error) {
