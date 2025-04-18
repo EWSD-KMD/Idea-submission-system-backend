@@ -49,6 +49,6 @@ export const disabledUserChecker = async (req, res, next) => {
     }
     next();
   } catch (error) {
-    return response.error(res, 401, "Unauthorized");
+    return response.error(res, 401, error.message);
   }
 };
