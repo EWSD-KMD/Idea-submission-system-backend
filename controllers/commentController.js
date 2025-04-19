@@ -41,6 +41,8 @@ export const getAllComments = async (req, res) => {
           content: true,
           createdAt: true,
           updatedAt: true,
+          anonymous: true,
+          status: true,
           user: {
             select: {
               id: true,

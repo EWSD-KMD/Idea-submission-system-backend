@@ -186,6 +186,12 @@ export const getIdeaById = async (req, res) => {
             id: true,
             name: true,
             email: true,
+            department: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
           },
         },
         comments: {
@@ -194,8 +200,17 @@ export const getIdeaById = async (req, res) => {
               select: {
                 id: true,
                 name: true,
+                department: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
               },
             },
+          },
+          orderBy: {
+            createdAt: 'desc',
           },
         },
         files: {
@@ -211,12 +226,31 @@ export const getIdeaById = async (req, res) => {
       return response.error(res, 404, "Idea not found");
     }
 
+    // Increment view count
     await prisma.idea.update({
       where: { id },
       data: { views: idea.views + 1 },
     });
 
-    return response.success(res, idea);
+    // Transform the response to handle anonymous content
+    const transformedIdea = {
+      ...idea,
+      user: idea.anonymous ? {
+        id: idea.user.id,
+        name: "Anonymous",
+        department: idea.user.department
+      } : idea.user,
+      comments: idea.comments.map(comment => ({
+        ...comment,
+        user: idea.anonymous ? {
+          id: comment.user.id,
+          name: comment.user.id === idea.userId ? "Anonymous (Author)" : comment.user.name,
+          department: comment.user.department
+        } : comment.user
+      }))
+    };
+
+    return response.success(res, transformedIdea);
   } catch (err) {
     console.error("Error fetching idea:", err);
     return response.error(res, 500, "Error fetching idea");
