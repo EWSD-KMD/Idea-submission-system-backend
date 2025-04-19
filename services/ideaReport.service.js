@@ -18,7 +18,22 @@ class IdeaReport {
       {},
       {
         user: { select: { email: true, name: true, disabledInd: true } },
-        idea: true,
+        idea: {
+          select: {
+            user: { select: { name: true, disabledInd: true, email: true } },
+            title: true,
+            description: true,
+            status: true,
+            anonymous: true,
+            categoryId: true,
+            departmentId: true,
+            userId: true,
+            academicYearId: true,
+            likes: true,
+            dislikes: true,
+            views: true,
+          },
+        },
       }
     );
     return data;

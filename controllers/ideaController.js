@@ -4,6 +4,7 @@ import { userSession } from "../utils/userSession.js";
 import { ideaReportService } from "../services/ideaReport.service.js";
 import { ideaService } from "../services/idea.service.js";
 import { streamService } from "../services/streaming.service.js";
+import { Role } from "../constants/common.js";
 
 const prisma = new PrismaClient();
 
@@ -33,6 +34,16 @@ export const getAllIdeas = async (req, res) => {
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
+
+    const loginUserId = userSession.getUserId();
+    const user = await prisma.user.findUnique({
+      where: { id: loginUserId },
+      include: { role: true },
+    });
+
+    if (user.role.name !== Role.QA_MANAGER) {
+      departmentId = user.departmentId;
+    }
 
     const where = {
       status: status || "SHOW",
@@ -210,7 +221,7 @@ export const getIdeaById = async (req, res) => {
             },
           },
           orderBy: {
-            createdAt: 'desc',
+            createdAt: "desc",
           },
         },
         files: {
@@ -235,19 +246,26 @@ export const getIdeaById = async (req, res) => {
     // Transform the response to handle anonymous content
     const transformedIdea = {
       ...idea,
-      user: idea.anonymous ? {
-        id: idea.user.id,
-        name: "Anonymous",
-        department: idea.user.department
-      } : idea.user,
-      comments: idea.comments.map(comment => ({
+      user: idea.anonymous
+        ? {
+            id: idea.user.id,
+            name: "Anonymous",
+            department: idea.user.department,
+          }
+        : idea.user,
+      comments: idea.comments.map((comment) => ({
         ...comment,
-        user: idea.anonymous ? {
-          id: comment.user.id,
-          name: comment.user.id === idea.userId ? "Anonymous (Author)" : comment.user.name,
-          department: comment.user.department
-        } : comment.user
-      }))
+        user: idea.anonymous
+          ? {
+              id: comment.user.id,
+              name:
+                comment.user.id === idea.userId
+                  ? "Anonymous (Author)"
+                  : comment.user.name,
+              department: comment.user.department,
+            }
+          : comment.user,
+      })),
     };
 
     return response.success(res, transformedIdea);
