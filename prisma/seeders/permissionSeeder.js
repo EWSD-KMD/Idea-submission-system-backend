@@ -1,106 +1,153 @@
-export const seedRoles = async (prismaTx) => {
-  console.log("🌱 Seeding Roles...");
+export const seedPermissions = async (prismaTx) => {
+  console.log("🌱 Seeding Permissions...");
 
-  const permissions = await prismaTx.permission.findMany({
-    include: {
-      menu: true
-    }
+  const menus = await prismaTx.menu.findMany();
+  
+  const menuMap = {};
+  menus.forEach(menu => {
+    menuMap[menu.name] = menu.id;
   });
 
-  const getPermissionIds = (operationMenuPairs) => {
-    return operationMenuPairs.map(([operation, menuName]) => {
-      const permission = permissions.find(p => 
-        p.operation === operation && 
-        p.menu.name === menuName
-      );
-      if (!permission) {
-        throw new Error(`Permission not found for operation: ${operation}, menu: ${menuName}`);
-      }
-      return permission.id;
-    });
-  };
-
-  const rolePermissions = {
-    ROOT: [
-      ["READ", "Admin"],
-      ["CREATE", "Admin"],
-      ["UPDATE", "Admin"],
-      ["DELETE", "Admin"],
-      ["READ", "Role"],
-      ["CREATE", "Role"],
-      ["UPDATE", "Role"],
-      ["DELETE", "Role"],
-      ["READ", "Menu"],
-      ["CREATE", "Menu"],
-      ["UPDATE", "Menu"],
-      ["DELETE", "Menu"],
-      ["READ", "Permission"],
-      ["CREATE", "Permission"],
-      ["UPDATE", "Permission"],
-      ["DELETE", "Permission"],
-      ["READ", "Report"],
-      ["DISABLE", "Report"],
-      ["FULLY_DISABLE", "Report"],
-      ["READ", "ReportChart"],
-      ["READ", "Idea"],
-      ["EXPORT", "Idea"],
-      ["READ", "AcademicYear"],
-      ["CREATE", "AcademicYear"],
-      ["UPDATE", "AcademicYear"],
-      ["DELETE", "AcademicYear"],
-      ["READ", "Department"],
-      ["CREATE", "Department"],
-      ["UPDATE", "Department"],
-      ["DELETE", "Department"],
-      ["READ", "Category"],
-      ["CREATE", "Category"],
-      ["UPDATE", "Category"],
-      ["DELETE", "Category"]
+  await prismaTx.permission.createMany({
+    data: [
+      {
+        operation: "READ",
+        menuId: menuMap["Admin"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Admin"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Admin"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Admin"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["Role"], 
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Role"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Role"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Role"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["Menu"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Menu"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Menu"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Menu"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["Permission"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Permission"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Permission"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Permission"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["Report"],
+      },
+      {
+        operation: "DISABLE",
+        menuId: menuMap["Report"],
+      },
+      {
+        operation: "FULLY_DISABLE",
+        menuId: menuMap["Report"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["ReportChart"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["Idea"],
+      },
+      {
+        operation: "EXPORT",
+        menuId: menuMap["Idea"],
+      },
+      {
+        operation: "READ",
+        menuId: menuMap["AcademicYear"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["AcademicYear"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["AcademicYear"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["AcademicYear"],
+      },  
+      {
+        operation: "READ",
+        menuId: menuMap["Department"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Department"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Department"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Department"],
+      },  
+      {
+        operation: "READ",  
+        menuId: menuMap["Category"],
+      },
+      {
+        operation: "CREATE",
+        menuId: menuMap["Category"],
+      },
+      {
+        operation: "UPDATE",
+        menuId: menuMap["Category"],
+      },
+      {
+        operation: "DELETE",
+        menuId: menuMap["Category"],   
+      },
     ],
-    QA_COORDINATOR: [
-      ["READ", "Idea"],
-      ["READ", "Department"],
-      ["CREATE", "Department"],
-      ["UPDATE", "Department"],
-      ["DELETE", "Department"]
-    ],
-    QA_MANAGER: [
-      ["READ", "Report"],
-      ["DISABLE", "Report"],
-      ["FULLY_DISABLE", "Report"],
-      ["READ", "Idea"],
-      ["EXPORT", "Idea"],
-      ["READ", "Category"],
-      ["CREATE", "Category"],
-      ["UPDATE", "Category"],
-      ["DELETE", "Category"]
-    ],
-    Admin: [
-      ["READ", "AcademicYear"],
-      ["CREATE", "AcademicYear"],
-      ["UPDATE", "AcademicYear"],
-      ["DELETE", "AcademicYear"]
-    ]
-  };
+  });
 
-  await Promise.all(
-    Object.entries(rolePermissions).map(async ([roleName, permissionPairs]) => {
-      const permissionIds = getPermissionIds(permissionPairs);
-      
-      const role = await prismaTx.role.create({
-        data: {
-          name: roleName
-        }
-      });
-
-      await prismaTx.rolePermission.createMany({
-        data: permissionIds.map(permissionId => ({
-          roleId: role.id,
-          permissionId
-        }))
-      });
-    })
-  );
-
-  console.log("✅ Roles seeded successfully!");
+  console.log("✅ permissions seeded successfully!");
 };
