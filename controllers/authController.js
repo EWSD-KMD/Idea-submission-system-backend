@@ -3,6 +3,7 @@ import { userService } from "../services/user.service.js";
 import response from "../utils/response.js";
 import { userSession } from "../utils/userSession.js";
 import prisma from "../prisma/prismaClient.js";
+import { masterSettingService } from "../services/masterSetting.service.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -75,7 +76,11 @@ export const updatePassword = async (req, res, next) => {
 export const getProfile = async (req, res, next) => {
   try {
     const data = await userService.getProfile();
-    return response.success(res, data);
+    const data1 = await masterSettingService.getAllMasterSettingData();
+    return response.success(res, {
+      ...data,
+      currentAcademicYear: data1.currentAcademicYear,
+    });
   } catch (error) {
     console.error(error);
     next(error);
