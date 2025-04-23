@@ -3,6 +3,8 @@ import prisma from "./prismaClient.js";
 import { seedAcademicYear } from "./seeders/academicYearSeeder.js";
 import { seedMasterSetting } from "./seeders/masterSetttingSeeder.js";
 import { seedPermissions } from "./seeders/permissionSeeder.js";
+import { seedMenus } from "./seeders/menuSeeder.js";
+
 const seedDatabase = async () => {
   console.log("🚀 Running database seeders...");
 
