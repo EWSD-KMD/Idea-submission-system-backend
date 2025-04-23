@@ -1,6 +1,8 @@
 import { authService } from "../services/auth.service.js";
 import { userService } from "../services/user.service.js";
 import response from "../utils/response.js";
+import { userSession } from "../utils/userSession.js";
+import prisma from "../prisma/prismaClient.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -77,5 +79,47 @@ export const getProfile = async (req, res, next) => {
   } catch (error) {
     console.error(error);
     next(error);
+  }
+};
+
+export const updateProfileImage = async (req, res, next) => {
+  try {
+    const data = await userService.updateProfileImage(req.file);
+    return response.success(res, data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const getProfileImage = async (req, res, next) => {
+  try {
+    const profileImage = await prisma.profileImage.findUnique({
+      where: { userId: userSession.getUserId() },
+    });
+    if (!profileImage) {
+      throw new AppError("Profile image not found", 404);
+    }
+    const { Body, ContentType, ContentLength, ContentDisposition } =
+      await userService.getProfileImage(profileImage.id);
+    // Detect if Body is a stream or buffer
+    const isReadable = Body && typeof Body.pipe === "function";
+
+    res.setHeader("Content-Type", ContentType || "application/octet-stream");
+    if (ContentLength) res.setHeader("Content-Length", ContentLength);
+    res.setHeader(
+      "Content-Disposition",
+      ContentDisposition || `inline; filename="${profileImage.fileName}"`
+    );
+
+    if (isReadable) {
+      Body.pipe(res); // pipe stream directly
+    } else {
+      // fallback: if Body is a buffer or Uint8Array
+      res.end(Body);
+    }
+  } catch (err) {
+    console.error("Error creating report:", err);
+    next(err);
   }
 };

@@ -7,6 +7,8 @@ import {
   resetPassword,
   updatePassword,
   getProfile,
+  updateProfileImage,
+  getProfileImage,
 } from "../controllers/authController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import {
@@ -14,6 +16,7 @@ import {
   validateResetPassword,
   validateUpdatePassword,
 } from "../validator/validator.js";
+import fileUpload from "../middlewares/fileUpload.js";
 
 const router = express.Router();
 
@@ -29,5 +32,19 @@ router.post(
   updatePassword
 );
 router.get("/profile", authenticateToken, getProfile);
+
+router.post(
+  "/profile/image",
+  authenticateToken,
+  fileUpload.single("profileImage"),
+  updateProfileImage
+);
+
+router.get(
+  "/profile/image",
+  authenticateToken,
+  fileUpload.single("profileImage"),
+  getProfileImage
+);
 
 export default router;
