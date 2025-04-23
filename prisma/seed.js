@@ -18,8 +18,8 @@ const seedDatabase = async () => {
         await seedMasterSetting(prismaTx);
       },
       {
-        maxWait: 5000,
-        timeout: 10000,
+        maxWait: 10000,
+        timeout: 20000,
       }
     );
 
