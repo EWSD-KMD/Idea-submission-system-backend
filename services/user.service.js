@@ -17,6 +17,7 @@ class UserService {
         name: true,
         profileImage: { select: { id: true, fileName: true } },
         lastLoginTime: true,
+        department: { select: { id: true, name: true } },
       },
     });
     return user;
