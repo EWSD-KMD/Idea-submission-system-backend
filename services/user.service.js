@@ -2,6 +2,7 @@ import { Status } from "@prisma/client";
 import prisma from "../prisma/prismaClient.js";
 import { userSession } from "../utils/userSession.js";
 import { transactional } from "../utils/db.js";
+import { fileService } from "./file.service.js";
 
 class UserService {
   constructor() {
@@ -11,7 +12,12 @@ class UserService {
     const userId = userSession.getUserId();
     const user = await this.prisma.user.findUnique({
       where: { id: userId },
-      select: { email: true, name: true },
+      select: {
+        email: true,
+        name: true,
+        profileImage: { select: { id: true, fileName: true } },
+        lastLoginTime: true,
+      },
     });
     return user;
   }
@@ -36,6 +42,50 @@ class UserService {
       where: { userId },
       data: { status: disabledInd ? Status.HIDE : Status.SHOW },
     });
+  }
+
+  async updateProfileImage(file) {
+    const uuid = crypto.randomUUID();
+    const filePath = `profiles/${uuid}`;
+    console.log("fileId", uuid);
+
+    const data = await fileService.uploadFile(
+      file.path,
+      filePath,
+      file.mimetype,
+      uuid,
+      file.originalname
+    );
+
+    const profileImage = await prisma.profileImage.findUnique({
+      where: { userId: userSession.getUserId() },
+    });
+    if (!profileImage) {
+      await prisma.profileImage.create({
+        data: {
+          fileName: data.fileName,
+          id: data.fileId,
+          userId: userSession.getUserId(),
+          createdBy: userSession.getUserId(),
+        },
+      });
+    } else {
+      await prisma.profileImage.update({
+        where: { userId: userSession.getUserId() },
+        data: {
+          fileName: data.fileName,
+          id: data.fileId,
+          createdBy: userSession.getUserId(),
+        },
+      });
+    }
+
+    return data;
+  }
+
+  async getProfileImage(fileId) {
+    const key = `profiles/${fileId}`;
+    return await fileService.getFile(key);
   }
 }
 

@@ -52,6 +52,11 @@ class AuthService {
     if (!(await this.#isValidPassword(password, user.password))) {
       throw new AppError("invalid username or password", 400);
     }
+
+    await prisma.user.update({
+      where: { id: user.id },
+      data: { lastLoginTime: new Date() },
+    });
     return await this.#createAccessAndRefreshToken(
       user.id,
       user.email,
