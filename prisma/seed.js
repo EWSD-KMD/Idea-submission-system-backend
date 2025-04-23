@@ -9,13 +9,19 @@ const seedDatabase = async () => {
   console.log("🚀 Running database seeders...");
 
   try {
-    await prisma.$transaction(async (prismaTx) => {
-      await seedMenus(prismaTx);
-      await seedPermissions(prismaTx);
-      await seedRoles(prismaTx);
-      await seedAcademicYear(prismaTx);
-      await seedMasterSetting(prismaTx);
-    });
+    await prisma.$transaction(
+      async (prismaTx) => {
+        await seedMenus(prismaTx);
+        await seedPermissions(prismaTx);
+        await seedRoles(prismaTx);
+        await seedAcademicYear(prismaTx);
+        await seedMasterSetting(prismaTx);
+      },
+      {
+        maxWait: 5000,
+        timeout: 10000,
+      }
+    );
 
     console.log("🎉 Database seeding completed!");
   } catch (error) {
