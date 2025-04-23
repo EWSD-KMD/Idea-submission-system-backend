@@ -68,8 +68,7 @@ export const markAsRead = async (req, res) => {
 
     await prisma.notification.update({
       where: {
-        id: parseInt(id, 10),
-        userId
+        id: parseInt(id, 10)
       },
       data: {
         isRead: true
