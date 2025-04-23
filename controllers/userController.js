@@ -7,13 +7,13 @@ import { fetchPaginatedData } from "../utils/db.js";
 
 export const getAllUsers = async (req, res) => {
   try {
-    const { page, limit } = req.query;
+    const { page, limit, departmentId } = req.query;
 
     const users = await fetchPaginatedData(
       "user",
       page,
       limit,
-      { deleted: false },
+      { deleted: false, ...(departmentId && { departmentId: parseInt(departmentId, 10) })},
       {
         id: true,
         email: true,
