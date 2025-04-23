@@ -71,9 +71,9 @@ model User {
   email     String   @unique
   name      String
   password  String   
-  roleId    Int
+  roleId    Int?
   // Define the relation using a named relation to match the back-relation in Role.
-  role      Role     @relation("UserToRole", fields: [roleId], references: [id])
+  role      Role?     @relation("UserToRole", fields: [roleId], references: [id])
   ideas       Idea[]
   comments    Comment[]
   reports    Report[]
