@@ -110,7 +110,7 @@ export const getUserById = async (req, res) => {
 export const createUser = async (req, res) => {
   try {
     const { email, name, password, roleId, departmentId, type } = req.body;
-    if (!email || !name || !password || !roleId || !departmentId || !type) {
+    if (!email || !name || !password || !departmentId || !type) {
       return response.error(res, 400, "All fields are required");
     }
     const hashedPassword = await bcrypt.hash(password, 10);
