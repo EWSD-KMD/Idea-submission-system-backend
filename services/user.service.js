@@ -59,21 +59,23 @@ class UserService {
       file.originalname
     );
 
+    const userId = userSession.getUserId();
+    console.log("userId", userId);
     const profileImage = await prisma.profileImage.findUnique({
-      where: { userId: userSession.getUserId() },
+      where: { userId },
     });
     if (!profileImage) {
       await prisma.profileImage.create({
         data: {
           fileName: data.fileName,
           id: data.fileId,
-          userId: userSession.getUserId(),
+          userId,
           createdBy: userSession.getUserId(),
         },
       });
     } else {
       await prisma.profileImage.update({
-        where: { userId: userSession.getUserId() },
+        where: { userId },
         data: {
           fileName: data.fileName,
           id: data.fileId,
