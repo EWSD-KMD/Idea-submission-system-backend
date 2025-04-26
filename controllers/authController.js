@@ -128,3 +128,13 @@ export const getProfileImage = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getIdeas = async (req, res, next) => {
+  try {
+    const data = await userService.getIdea();
+    return response.success(res, data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
