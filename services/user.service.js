@@ -3,6 +3,7 @@ import prisma from "../prisma/prismaClient.js";
 import { userSession } from "../utils/userSession.js";
 import { transactional } from "../utils/db.js";
 import { fileService } from "./file.service.js";
+import crypto from "crypto";
 
 class UserService {
   constructor() {
