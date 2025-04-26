@@ -9,6 +9,7 @@ import {
   getProfile,
   updateProfileImage,
   getProfileImage,
+  getIdeas,
 } from "../controllers/authController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import {
@@ -46,5 +47,7 @@ router.get(
   fileUpload.single("profileImage"),
   getProfileImage
 );
+
+router.get("/profile/idea", authenticateToken, getIdeas);
 
 export default router;

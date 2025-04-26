@@ -89,6 +89,106 @@ class UserService {
     const key = `profiles/${fileId}`;
     return await fileService.getFile(key);
   }
+
+  async getIdea() {
+    const data = await prisma.idea.findMany({
+      where: { userId: userSession.getUserId() },
+      include: {
+        category: true,
+        department: true,
+        academicYear: {
+          select: {
+            id: true,
+            year: true,
+            startDate: true,
+            closureDate: true,
+            finalClosureDate: true,
+          },
+        },
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            department: {
+              select: {
+                id: true,
+                name: true,
+              },
+            },
+          },
+        },
+        files: {
+          select: {
+            id: true,
+            fileName: true,
+          },
+        },
+        comments: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                name: true,
+                department: {
+                  select: {
+                    id: true,
+                    name: true,
+                  },
+                },
+              },
+            },
+          },
+          orderBy: {
+            createdAt: "desc",
+          },
+        },
+        _count: {
+          select: {
+            comments: true,
+            reports: true,
+          },
+        },
+      },
+      orderBy: {
+        createdAt: "desc",
+      },
+    });
+    const transformedIdeas = await Promise.all(
+      data.map(async (idea) => {
+        const noti = await prisma.notification.findFirst({
+          where: {
+            ideaId: idea.id,
+            fromUserId: userSession.getUserId(),
+            type: {
+              in: ["LIKE", "DISLIKE"],
+            },
+          },
+        });
+        console.log("noti", noti);
+
+        return {
+          ...idea,
+          comments: idea.comments.map((comment) => ({
+            ...comment,
+            user: idea.anonymous
+              ? {
+                  id: comment.user.id,
+                  name:
+                    comment.user.id === idea.userId
+                      ? "Anonymous (Author)"
+                      : comment.user.name,
+                  department: comment.user.department,
+                }
+              : comment.user,
+          })),
+          likeInd: noti?.type === "LIKE",
+          dislikeInd: noti?.type === "DISLIKE",
+        };
+      })
+    );
+    return transformedIdeas;
+  }
 }
 
 // transactional
