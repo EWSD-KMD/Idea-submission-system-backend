@@ -23,6 +23,7 @@ import {
   authenticateToken,
   disabledUserChecker,
 } from "../middlewares/authMiddleware.js";
+import { requestContextMiddleware } from "../middlewares/requestContextMiddleware.js";
 import { validateCreateReportIdea } from "../validator/validator.js";
 import {
   closureDateChecker,
@@ -72,6 +73,7 @@ router.post(
 
 router.post(
   "/file/upload",
+  requestContextMiddleware,
   authenticateToken,
   fileUpload.array("file", 10),
   uploadIdeaFile
