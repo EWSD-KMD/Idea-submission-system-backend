@@ -18,7 +18,6 @@ import {
   validateUpdatePassword,
 } from "../validator/validator.js";
 import fileUpload from "../middlewares/fileUpload.js";
-import { requestContextMiddleware } from "../middlewares/requestContextMiddleware.js";
 
 const router = express.Router();
 
@@ -37,7 +36,6 @@ router.get("/profile", authenticateToken, getProfile);
 
 router.post(
   "/profile/image",
-  requestContextMiddleware,
   authenticateToken,
   fileUpload.single("profileImage"),
   updateProfileImage
