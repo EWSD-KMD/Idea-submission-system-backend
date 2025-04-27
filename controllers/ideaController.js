@@ -41,7 +41,7 @@ export const getAllIdeas = async (req, res) => {
       include: { role: true },
     });
 
-    if (user.type !== "USER" || user.role.name !== Role.QA_MANAGER) {
+    if (user.type !== "USER" && user.role.name !== Role.QA_MANAGER) {
       departmentId = user.departmentId;
     }
 

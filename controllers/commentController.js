@@ -108,7 +108,7 @@ export const createComment = async (req, res, next) => {
       userId,
       parseInt(ideaId, 10),
       idea.userId,
-      `${anonymous ? 'Anonymous user' : 'Someone'} commented on your idea "${idea.title}"`
+      `${anonymous && 'Anonymous user'} commented on your idea "${idea.title}"`
     );
 
     const transformedComment = {
