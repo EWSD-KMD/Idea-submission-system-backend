@@ -192,8 +192,6 @@ class IdeaService {
   }
 
   async uploadIdeaFile(files) {
-    const userId = userSession.getUserId();
-    console.log("userId idea file", userId);
     const filesPromises = files.map((file) => {
       const uuid = crypto.randomUUID();
       const filePath = `ideas/${uuid}`;
