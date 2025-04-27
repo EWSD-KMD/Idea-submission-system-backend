@@ -87,6 +87,7 @@ model User {
   type         UserType @default(USER) 
   passwordUpdatedAt DateTime?
   disabledInd   Boolean @default(false)
+  fullyDisabledInd   Boolean @default(false)
   deleted    Boolean   @default(false)
   deletedAt  DateTime?
   profileImage  ProfileImage?
