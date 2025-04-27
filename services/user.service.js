@@ -31,8 +31,15 @@ class UserService {
     });
   }
 
+  async fullyDisabled(userId, fullyDisabledInd) {
+    await this.prisma.user.update({
+      where: { id: userId },
+      data: { fullyDisabledInd, disabledInd: fullyDisabledInd },
+    });
+  }
+
   async fullyDisabledUser(userId, disabledInd) {
-    await this.disabledUser(userId, disabledInd);
+    await this.fullyDisabled(userId, disabledInd);
 
     // update the status of all the idea and comments
     await this.prisma.idea.updateMany({

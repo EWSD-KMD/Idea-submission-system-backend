@@ -17,10 +17,24 @@ class IdeaReport {
       limit,
       {},
       {
-        user: { select: { email: true, name: true, disabledInd: true } },
+        user: {
+          select: {
+            email: true,
+            name: true,
+            disabledInd: true,
+            fullyDisabledInd: true,
+          },
+        },
         idea: {
           select: {
-            user: { select: { name: true, disabledInd: true, email: true } },
+            user: {
+              select: {
+                name: true,
+                disabledInd: true,
+                email: true,
+                fullyDisabledInd: true,
+              },
+            },
             title: true,
             description: true,
             status: true,
