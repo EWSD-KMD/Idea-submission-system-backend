@@ -22,7 +22,7 @@ export const authenticateToken = async (req, res, next) => {
 
     const user = await prisma.user.findUnique({ where: { id: userId } });
     const decodedToken = await decodeToken(bearerToken);
-    console.log("decoded token", decodeToken);
+    console.log("decoded token", decodedToken);
     if (!isValidTokenDate(decodedToken.iat, user?.passwordUpdatedAt)) {
       throw new AppError("Unauthorized", 401);
     }
@@ -35,6 +35,7 @@ export const authenticateToken = async (req, res, next) => {
     // });
     next();
   } catch (error) {
+    console.log("error", error);
     return response.error(res, 401, "Unauthorized");
   }
 };
