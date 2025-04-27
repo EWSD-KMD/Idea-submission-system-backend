@@ -202,6 +202,12 @@ class UserService {
     );
     return transformedIdeas;
   }
+
+  async deleteProfileImage() {
+    await this.prisma.profileImage.delete({
+      where: { userId: userSession.getUserId() },
+    });
+  }
 }
 
 // transactional
