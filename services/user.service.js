@@ -46,7 +46,7 @@ class UserService {
     });
   }
 
-  async updateProfileImage(file) {
+  async updateProfileImage(file, userId) {
     const uuid = crypto.randomUUID();
     const filePath = `profiles/${uuid}`;
     console.log("fileId", uuid);
@@ -59,7 +59,6 @@ class UserService {
       file.originalname
     );
 
-    const userId = userSession.getUserId();
     console.log("userId", userId);
     const profileImage = await prisma.profileImage.findUnique({
       where: { userId },
@@ -70,7 +69,7 @@ class UserService {
           fileName: data.fileName,
           id: data.fileId,
           userId,
-          createdBy: userSession.getUserId(),
+          createdBy: userId,
         },
       });
     } else {
@@ -79,7 +78,7 @@ class UserService {
         data: {
           fileName: data.fileName,
           id: data.fileId,
-          createdBy: userSession.getUserId(),
+          createdBy: userId,
         },
       });
     }

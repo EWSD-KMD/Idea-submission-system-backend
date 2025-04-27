@@ -26,14 +26,12 @@ export const authenticateToken = async (req, res, next) => {
     if (!isValidTokenDate(decodedToken.iat, user?.passwordUpdatedAt)) {
       throw new AppError("Unauthorized", 401);
     }
-
-    const store = asyncLocalStorage.getStore();
-    store.set("userId", userId);
-    // asyncLocalStorage.run(map, () => {
-    //   console.log("user map 1", map);
-    //   next();
-    // });
-    next();
+    const map = new Map();
+    map.set("userId", userId);
+    asyncLocalStorage.run(map, () => {
+      console.log("user map 1", map);
+      next();
+    });
   } catch (error) {
     console.log("error", error);
     return response.error(res, 401, "Unauthorized");

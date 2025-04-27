@@ -89,7 +89,9 @@ export const getProfile = async (req, res, next) => {
 
 export const updateProfileImage = async (req, res, next) => {
   try {
-    const data = await userService.updateProfileImage(req.file);
+    const bearerToken = retriveBearerToken(req.headers.authorization);
+    const { userId } = await decodeToken(bearerToken);
+    const data = await userService.updateProfileImage(req.file, userId);
     return response.success(res, data);
   } catch (error) {
     console.error(error);
