@@ -173,7 +173,7 @@ class UserService {
             },
           },
           orderBy: {
-            created_at: "asc",
+            createdAt: "asc",
           },
         });
 
