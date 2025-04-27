@@ -361,7 +361,22 @@ export const likeIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const userId = userSession.getUserId();
-    const idea = await prisma.idea.update({
+
+    // First get the idea to check ownership
+    const idea = await prisma.idea.findUnique({
+      where: { id }
+    });
+
+    if (!idea) {
+      return response.error(res, 404, "Idea not found");
+    }
+
+    if (userId === idea.userId) {
+      return response.error(res, 400, "You cannot like your own idea");
+    }
+
+    // Only increment likes if not the owner
+    const updatedIdea = await prisma.idea.update({
       where: { id },
       data: {
         likes: {
@@ -369,7 +384,6 @@ export const likeIdea = async (req, res) => {
         },
       },
     });
-    console.log("idea", idea);
 
     await createNotification(
       "LIKE",
@@ -379,7 +393,7 @@ export const likeIdea = async (req, res) => {
       `liked your idea "${idea.title}"`
     );
 
-    return response.success(res, idea);
+    return response.success(res, updatedIdea);
   } catch (err) {
     console.error("Error liking idea:", err);
     return response.error(res, 500, "Error liking idea");
@@ -390,7 +404,22 @@ export const dislikeIdea = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
     const userId = userSession.getUserId();
-    const idea = await prisma.idea.update({
+
+    // First get the idea to check ownership
+    const idea = await prisma.idea.findUnique({
+      where: { id }
+    });
+
+    if (!idea) {
+      return response.error(res, 404, "Idea not found");
+    }
+
+    if (userId === idea.userId) {
+      return response.error(res, 400, "You cannot dislike your own idea");
+    }
+
+    // Only increment dislikes if not the owner
+    const updatedIdea = await prisma.idea.update({
       where: { id },
       data: {
         dislikes: {
@@ -407,7 +436,7 @@ export const dislikeIdea = async (req, res) => {
       `disliked your idea "${idea.title}"`
     );
 
-    return response.success(res, idea);
+    return response.success(res, updatedIdea);
   } catch (err) {
     console.error("Error disliking idea:", err);
     return response.error(res, 500, "Error disliking idea");
