@@ -10,6 +10,7 @@ import {
   updateProfileImage,
   getProfileImage,
   getIdeas,
+  deleteProfileImage,
 } from "../controllers/authController.js";
 import { authenticateToken } from "../middlewares/authMiddleware.js";
 import {
@@ -44,5 +45,7 @@ router.post(
 router.get("/profile/image", authenticateToken, getProfileImage);
 
 router.get("/profile/idea", authenticateToken, getIdeas);
+
+router.delete("/profile/image", authenticateToken, deleteProfileImage);
 
 export default router;

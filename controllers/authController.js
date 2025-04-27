@@ -5,6 +5,7 @@ import { userSession } from "../utils/userSession.js";
 import prisma from "../prisma/prismaClient.js";
 import { masterSettingService } from "../services/masterSetting.service.js";
 import { retriveBearerToken, decodeToken } from "../utils/jwt.js";
+import { AppError } from "../utils/appError.js";
 
 export const login = async (req, res, next) => {
   try {
@@ -136,6 +137,16 @@ export const getIdeas = async (req, res, next) => {
   try {
     const data = await userService.getIdea();
     return response.success(res, data);
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+};
+
+export const deleteProfileImage = async (req, res, next) => {
+  try {
+    await userService.deleteProfileImage();
+    return response.success(res, {});
   } catch (error) {
     console.error(error);
     next(error);
