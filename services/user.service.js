@@ -164,7 +164,7 @@ class UserService {
     });
     const transformedIdeas = await Promise.all(
       data.map(async (idea) => {
-        const noti = await prisma.notification.findFirst({
+        const notis = await prisma.notification.findMany({
           where: {
             ideaId: idea.id,
             fromUserId: userSession.getUserId(),
@@ -172,7 +172,12 @@ class UserService {
               in: ["LIKE", "DISLIKE"],
             },
           },
+          orderBy: {
+            created_at: "asc",
+          },
         });
+
+        const noti = notis[0];
         console.log("noti", noti);
 
         return {
