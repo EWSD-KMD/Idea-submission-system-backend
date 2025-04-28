@@ -103,8 +103,9 @@ export const updateProfileImage = async (req, res, next) => {
 
 export const getProfileImage = async (req, res, next) => {
   try {
+    const { userId } = req.params;
     const profileImage = await prisma.profileImage.findUnique({
-      where: { userId: userSession.getUserId() },
+      where: { userId: parseInt(userId) },
     });
     if (!profileImage) {
       throw new AppError("Profile image not found", 404);

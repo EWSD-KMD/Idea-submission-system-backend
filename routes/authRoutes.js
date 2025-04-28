@@ -42,7 +42,7 @@ router.post(
   updateProfileImage
 );
 
-router.get("/profile/image", authenticateToken, getProfileImage);
+router.get("/profile/image/:userId", getProfileImage);
 
 router.get("/profile/idea", authenticateToken, getIdeas);
 
