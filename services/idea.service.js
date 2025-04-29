@@ -1,5 +1,5 @@
 import { EMAIL_TEMPLATE } from "../constants/emailTemplateConstant.js";
-import { getQaManagerEmailsByDepartmentId } from "../utils/common.js";
+import { getQaCoordinatorEmailsByDepartmentId } from "../utils/common.js";
 import { emailService } from "./email.service.js";
 import prisma from "../prisma/prismaClient.js";
 import { getPrettyDate } from "../utils/common.js";
@@ -14,7 +14,7 @@ class IdeaService {
     { ownerProfileLink, ideaTitle, createdAt, ideaLink, ownerName }
   ) {
     try {
-      const toEmails = getQaManagerEmailsByDepartmentId(departmentId);
+      const toEmails = await getQaCoordinatorEmailsByDepartmentId(departmentId);
       const htmlContent = emailService.compileTemplate(
         EMAIL_TEMPLATE.CREATE_IDEA_TP.PATH,
         {
