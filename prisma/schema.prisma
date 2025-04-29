@@ -92,6 +92,7 @@ model User {
   deletedAt  DateTime?
   profileImage  ProfileImage?
   lastLoginTime DateTime?
+  userAgent String?
 }
 
 model RefreshToken {
