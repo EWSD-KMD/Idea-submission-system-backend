@@ -25,6 +25,22 @@ export const getQaManagerEmailsByDepartmentId = async (departmentId) => {
   return users.map((user) => user.email);
 };
 
+export const getQaCoordinatorEmailsByDepartmentId = async (departmentId) => {
+  const qaCordinatorRole = await prisma.role.findUnique({
+    where: { name: Role.QA_COORDINATOR },
+  });
+  const users = await prisma.user.findMany({
+    where: {
+      roleId: qaCordinatorRole.id,
+      departmentId,
+    },
+  });
+  if (users.length === 0) {
+    throw new Error("QA Cordinator user not found.");
+  }
+  return users.map((user) => user.email);
+};
+
 export function ensureTmpDir() {
   const tmpDir = path.resolve("tmp");
   if (!fs.existsSync(tmpDir)) {
