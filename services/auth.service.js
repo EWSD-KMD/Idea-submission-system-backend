@@ -38,7 +38,7 @@ class AuthService {
     return { accessToken, refreshToken };
   }
 
-  async login(email, password, source) {
+  async login(email, password, source, userAgent) {
     const user = await prisma.user.findUnique({
       where: { email },
     });
@@ -57,6 +57,7 @@ class AuthService {
       where: { id: user.id },
       data: { lastLoginTime: new Date() },
     });
+    await this.#saveUserAgent(userAgent, user.id);
     return await this.#createAccessAndRefreshToken(
       user.id,
       user.email,
@@ -151,6 +152,14 @@ class AuthService {
     await prisma.user.update({
       where: { id: userId },
       data: { password: hashedPassword, passwordUpdatedAt: new Date() },
+    });
+  }
+
+  async #saveUserAgent(userAgent, userId) {
+    console.log(userAgent);
+    await prisma.user.update({
+      where: { id: userId },
+      data: { userAgent },
     });
   }
 }

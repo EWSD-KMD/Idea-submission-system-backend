@@ -1,7 +1,6 @@
 import { authService } from "../services/auth.service.js";
 import { userService } from "../services/user.service.js";
 import response from "../utils/response.js";
-import { userSession } from "../utils/userSession.js";
 import prisma from "../prisma/prismaClient.js";
 import { masterSettingService } from "../services/masterSetting.service.js";
 import { retriveBearerToken, decodeToken } from "../utils/jwt.js";
@@ -9,8 +8,9 @@ import { AppError } from "../utils/appError.js";
 
 export const login = async (req, res, next) => {
   try {
+    const userAgent = req.headers["user-agent"];
     const { email, password, source } = req.body;
-    const data = await authService.login(email, password, source);
+    const data = await authService.login(email, password, source, userAgent);
     return response.success(res, data);
   } catch (error) {
     console.error(error);
