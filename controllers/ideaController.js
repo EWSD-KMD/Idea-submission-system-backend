@@ -30,23 +30,24 @@ const createNotification = async (
 
 export const getAllIdeas = async (req, res) => {
   try {
-    let { page, limit, status, departmentId, categoryId, userId, sortBy } = req.query;
+    let { page, limit, status, departmentId, categoryId, userId, sortBy } =
+      req.query;
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
 
     const sortOptions = {
-      latest: { createdAt: 'desc' },
-      popular: { likes: 'desc' },
-      mostViewed: { views: 'desc' },
+      latest: { createdAt: "desc" },
+      popular: { likes: "desc" },
+      mostViewed: { views: "desc" },
       latestComment: {
         comments: {
           orderBy: {
-            createdAt: 'desc'
+            createdAt: "desc",
           },
-          take: 1
-        }
-      }
+          take: 1,
+        },
+      },
     };
 
     const orderBy = sortOptions[sortBy] || sortOptions.latest;
@@ -138,7 +139,7 @@ export const getAllIdeas = async (req, res) => {
     // Transform ideas to handle anonymous posts
     const transformedIdeas = await Promise.all(
       ideas.map(async (idea) => {
-        const noti = await prisma.notification.findFirst({
+        const notis = await prisma.notification.findMany({
           where: {
             ideaId: idea.id,
             fromUserId: userSession.getUserId(),
@@ -146,8 +147,12 @@ export const getAllIdeas = async (req, res) => {
               in: ["LIKE", "DISLIKE"],
             },
           },
+          orderBy: {
+            createdAt: "asc",
+          },
         });
-        console.log("noti", noti);
+        console.log("notis", notis);
+        const noti = notis[0];
 
         return {
           ...idea,
@@ -190,7 +195,7 @@ export const getAllIdeas = async (req, res) => {
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
         userId: userId ? parseInt(userId, 10) : null,
         status,
-        sortBy: sortBy || 'latest'
+        sortBy: sortBy || "latest",
       },
     });
   } catch (err) {
@@ -379,7 +384,7 @@ export const likeIdea = async (req, res) => {
 
     // First get the idea to check ownership
     const idea = await prisma.idea.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!idea) {
@@ -422,7 +427,7 @@ export const dislikeIdea = async (req, res) => {
 
     // First get the idea to check ownership
     const idea = await prisma.idea.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!idea) {
