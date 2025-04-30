@@ -30,10 +30,18 @@ const createNotification = async (
 
 export const getAllIdeas = async (req, res) => {
   try {
-    let { page, limit, status, departmentId, categoryId, userId } = req.query;
+    let { page, limit, status, departmentId, categoryId, userId, sortBy } = req.query;
     page = page ? parseInt(page, 10) : 1;
     limit = limit ? parseInt(limit, 10) : 10;
     const skip = (page - 1) * limit;
+
+    const sortOptions = {
+      latest: { createdAt: 'desc' },
+      popular: { likes: 'desc' },
+      mostViewed: { views: 'desc' }
+    };
+
+    const orderBy = sortOptions[sortBy] || sortOptions.latest;
 
     const loginUserId = userSession.getUserId();
     const user = await prisma.user.findUnique({
@@ -114,9 +122,7 @@ export const getAllIdeas = async (req, res) => {
             },
           },
         },
-        orderBy: {
-          createdAt: "desc",
-        },
+        orderBy,
       }),
       prisma.idea.count({ where }),
     ]);
@@ -176,6 +182,7 @@ export const getAllIdeas = async (req, res) => {
         categoryId: categoryId ? parseInt(categoryId, 10) : null,
         userId: userId ? parseInt(userId, 10) : null,
         status,
+        sortBy: sortBy || 'latest'
       },
     });
   } catch (err) {
