@@ -41,9 +41,10 @@ export const getAllIdeas = async (req, res) => {
       mostViewed: { views: 'desc' },
       latestComment: {
         comments: {
-          _max: {
+          orderBy: {
             createdAt: 'desc'
-          }
+          },
+          take: 1
         }
       }
     };
