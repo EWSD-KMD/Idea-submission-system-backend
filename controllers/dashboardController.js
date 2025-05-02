@@ -6,18 +6,18 @@ export const getDashboardStats = async (req, res) => {
   try {
     // Common where clause for active ideas
     const activeIdeaFilter = {
-      status: Status.SHOW
+      status: Status.SHOW,
     };
 
     // Common where clause for active users
     const activeUserFilter = {
       deleted: false,
-      disabledInd: false
+      disabledInd: false,
     };
 
     // Common where clause for active comments
     const activeCommentFilter = {
-      status: Status.SHOW
+      status: Status.SHOW,
     };
 
     const [
@@ -28,37 +28,38 @@ export const getDashboardStats = async (req, res) => {
       activeUsers,
       departmentStats,
       categoryStats,
-      popularIdeas
+      popularIdeas,
+      browserStats,
     ] = await Promise.all([
       // Get total active ideas
       prisma.idea.count({
-        where: activeIdeaFilter
+        where: activeIdeaFilter,
       }),
 
       // Get total likes from active ideas
       prisma.idea.aggregate({
         where: activeIdeaFilter,
         _sum: {
-          likes: true
-        }
+          likes: true,
+        },
       }),
 
       // Get total dislikes from active ideas
       prisma.idea.aggregate({
         where: activeIdeaFilter,
         _sum: {
-          dislikes: true
-        }
+          dislikes: true,
+        },
       }),
 
       // Get total active comments
       prisma.comment.count({
-        where: activeCommentFilter
+        where: activeCommentFilter,
       }),
 
       // Get active users who have posted ideas or comments in last 30 days
       prisma.user.count({
-        where: activeUserFilter
+        where: activeUserFilter,
       }),
 
       // Get department statistics for active ideas
@@ -69,11 +70,11 @@ export const getDashboardStats = async (req, res) => {
           _count: {
             select: {
               ideas: {
-                where: activeIdeaFilter
-              }
-            }
-          }
-        }
+                where: activeIdeaFilter,
+              },
+            },
+          },
+        },
       }),
 
       // Get category statistics for active ideas
@@ -84,11 +85,11 @@ export const getDashboardStats = async (req, res) => {
           _count: {
             select: {
               ideas: {
-                where: activeIdeaFilter
-              }
-            }
-          }
-        }
+                where: activeIdeaFilter,
+              },
+            },
+          },
+        },
       }),
 
       // Get popular active ideas
@@ -97,11 +98,11 @@ export const getDashboardStats = async (req, res) => {
         take: 5,
         orderBy: [
           {
-            likes: 'desc'
+            likes: "desc",
           },
           {
-            views: 'desc'
-          }
+            views: "desc",
+          },
         ],
         select: {
           id: true,
@@ -111,11 +112,18 @@ export const getDashboardStats = async (req, res) => {
           createdAt: true,
           department: {
             select: {
-              name: true
-            }
-          }
-        }
-      })
+              name: true,
+            },
+          },
+        },
+      }),
+
+      prisma.user.groupBy({
+        by: ["userAgent"],
+        _count: {
+          _all: true,
+        },
+      }),
     ]);
 
     const dashboardData = {
@@ -123,26 +131,30 @@ export const getDashboardStats = async (req, res) => {
         totalIdeas,
         interactions: {
           likes: totalLikes._sum.likes || 0,
-          dislikes: totalDislikes._sum.dislikes || 0
+          dislikes: totalDislikes._sum.dislikes || 0,
         },
         totalComments,
-        activeUsers
+        activeUsers,
       },
-      departmentStats: departmentStats.map(dept => ({
+      departmentStats: departmentStats.map((dept) => ({
         name: dept.name,
-        totalPosts: dept._count.ideas
+        totalPosts: dept._count.ideas,
       })),
-      categoryStats: categoryStats.map(cat => ({
+      categoryStats: categoryStats.map((cat) => ({
         name: cat.name,
-        totalPosts: cat._count.ideas
+        totalPosts: cat._count.ideas,
       })),
-      popularIdeas: popularIdeas.map(idea => ({
+      popularIdeas: popularIdeas.map((idea) => ({
         title: idea.title,
         department: idea.department.name,
         votes: idea.likes,
         views: idea.views,
-        date: idea.createdAt
-      }))
+        date: idea.createdAt,
+      })),
+      browserStats: browserStats.map((browser) => ({
+        name: browser.userAgent,
+        totalUsers: browser._count._all,
+      })),
     };
 
     return response.success(res, dashboardData);
