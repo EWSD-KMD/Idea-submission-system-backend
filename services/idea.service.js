@@ -223,6 +223,14 @@ class IdeaService {
 
     return await fileService.getFile(key);
   }
+
+  async hideIdea(ideaId) {
+    const idea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+    });
+    const status = idea.status === "SHOW" ? "HIDE" : "SHOW";
+    await prisma.idea.update({ where: { id: ideaId }, data: { status } });
+  }
 }
 
 export const ideaService = new IdeaService();

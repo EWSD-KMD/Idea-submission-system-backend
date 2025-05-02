@@ -364,7 +364,7 @@ export const likeIdea = async (req, res) => {
 
     // First get the idea to check ownership
     const idea = await prisma.idea.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!idea) {
@@ -407,7 +407,7 @@ export const dislikeIdea = async (req, res) => {
 
     // First get the idea to check ownership
     const idea = await prisma.idea.findUnique({
-      where: { id }
+      where: { id },
     });
 
     if (!idea) {
@@ -541,6 +541,17 @@ export const exportIdea = async (req, res, next) => {
     streamService.streamIdeasToZip(res);
   } catch (err) {
     console.error("Error creating report:", err);
+    next(err);
+  }
+};
+
+export const hideIdea = async (req, res, next) => {
+  try {
+    const { ideaId } = req.params;
+    await ideaService.hideIdea(parseInt(ideaId));
+    return response.success(res);
+  } catch (err) {
+    console.error("Error hiding idea:", err);
     next(err);
   }
 };

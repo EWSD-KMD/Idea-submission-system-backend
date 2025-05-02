@@ -16,7 +16,7 @@ import {
   getAllMasterSettingData,
   updateMasterSetting,
 } from "../controllers/masterSettingController.js";
-import { exportIdea } from "../controllers/ideaController.js";
+import { exportIdea, hideIdea } from "../controllers/ideaController.js";
 import { getDashboardStats } from "../controllers/dashboardController.js";
 
 const router = express.Router();
@@ -35,6 +35,8 @@ router.put("/masterSetting/:masterSettingId", updateMasterSetting);
 
 router.get("/idea/export", exportIdea);
 
-router.get('/stats', getDashboardStats);
+router.get("/stats", getDashboardStats);
+
+router.post("/idea/:ideaId/hide", hideIdea);
 
 export default router;
