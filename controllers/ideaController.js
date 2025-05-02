@@ -564,3 +564,14 @@ export const exportIdea = async (req, res, next) => {
     next(err);
   }
 };
+
+export const hideIdea = async (req, res, next) => {
+  try {
+    const { ideaId } = req.params;
+    await ideaService.hideIdea(parseInt(ideaId));
+    return response.success(res);
+  } catch (err) {
+    console.error("Error hiding idea:", err);
+    next(err);
+  }
+};
