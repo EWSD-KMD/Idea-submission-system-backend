@@ -148,7 +148,7 @@ export const getAllIdeas = async (req, res) => {
             },
           },
           orderBy: {
-            createdAt: "asc",
+            createdAt: "desc",
           },
         });
         console.log("notis", notis);
