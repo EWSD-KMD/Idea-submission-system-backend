@@ -93,6 +93,7 @@ model User {
   profileImage  ProfileImage?
   lastLoginTime DateTime?
   userAgent String?
+  firstTimeLoginInd Boolean @default(true)
 }
 
 model RefreshToken {

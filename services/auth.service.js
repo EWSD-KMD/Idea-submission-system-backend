@@ -57,14 +57,18 @@ class AuthService {
 
     await prisma.user.update({
       where: { id: user.id },
-      data: { lastLoginTime: new Date() },
+      data: { lastLoginTime: new Date(), firstTimeLoginInd: false },
     });
     await this.#saveUserAgent(userAgent, user.id);
-    return await this.#createAccessAndRefreshToken(
+    const data = await this.#createAccessAndRefreshToken(
       user.id,
       user.email,
       user.type
     );
+    return {
+      ...data,
+      firstTimeLogin: user.firstTimeLoginInd,
+    };
   }
 
   async logout(refreshToken) {
