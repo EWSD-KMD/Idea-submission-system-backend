@@ -44,8 +44,7 @@ export const getAllIdeas = async (req, res) => {
         comments: {
           orderBy: {
             createdAt: "desc",
-          },
-          take: 1,
+          }
         },
       },
     };
