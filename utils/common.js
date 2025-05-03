@@ -52,5 +52,5 @@ export function ensureTmpDir() {
 }
 
 export function getPrettyUserAgent(userAgent) {
-  return userAgent.split(" ")[0].split("/")[0];
+  return userAgent?.split(" ")[0]?.split("/")[0] ?? null;
 }
