@@ -390,25 +390,57 @@ export const likeIdea = async (req, res) => {
       return response.error(res, 400, "You cannot like your own idea");
     }
 
-    // Only increment likes if not the owner
-    const updatedIdea = await prisma.idea.update({
-      where: { id },
-      data: {
-        likes: {
-          increment: 1,
-        },
-      },
+    const existingLike = await prisma.notification.findFirst({
+      where: {
+        ideaId: id,
+        fromUserId: userId,
+        type: "LIKE"
+      }
     });
 
-    await createNotification(
-      "LIKE",
-      userId,
-      id,
-      idea.userId,
-      `liked your idea "${idea.title}"`
-    );
+    if (existingLike) {
+      await Promise.all([
+        prisma.notification.delete({
+          where: { id: existingLike.id }
+        }),
+        prisma.idea.update({
+          where: { id },
+          data: {
+            likes: {
+              decrement: 1
+            }
+          }
+        })
+      ]);
 
-    return response.success(res, updatedIdea);
+      return response.success(res, { 
+        message: "Like removed successfully",
+        liked: false
+      });
+    }
+
+    const [updatedIdea] = await Promise.all([
+      prisma.idea.update({
+        where: { id },
+        data: {
+          likes: {
+            increment: 1
+          }
+        }
+      }),
+      createNotification(
+        "LIKE",
+        userId,
+        id,
+        idea.userId,
+        `liked your idea "${idea.title}"`
+      )
+    ]);
+
+    return response.success(res, { 
+      ...updatedIdea,
+      liked: true
+    });
   } catch (err) {
     console.error("Error liking idea:", err);
     return response.error(res, 500, "Error liking idea");
@@ -433,25 +465,60 @@ export const dislikeIdea = async (req, res) => {
       return response.error(res, 400, "You cannot dislike your own idea");
     }
 
-    // Only increment dislikes if not the owner
-    const updatedIdea = await prisma.idea.update({
-      where: { id },
-      data: {
-        dislikes: {
-          increment: 1,
-        },
-      },
+    // Check if user already disliked this idea
+    const existingDislike = await prisma.notification.findFirst({
+      where: {
+        ideaId: id,
+        fromUserId: userId,
+        type: "DISLIKE"
+      }
     });
 
-    await createNotification(
-      "DISLIKE",
-      userId,
-      id,
-      idea.userId,
-      `disliked your idea "${idea.title}"`
-    );
+    if (existingDislike) {
+      // Remove dislike
+      await Promise.all([
+        prisma.notification.delete({
+          where: { id: existingDislike.id }
+        }),
+        prisma.idea.update({
+          where: { id },
+          data: {
+            dislikes: {
+              decrement: 1
+            }
+          }
+        })
+      ]);
 
-    return response.success(res, updatedIdea);
+      return response.success(res, { 
+        message: "Dislike removed successfully",
+        disliked: false
+      });
+    }
+
+    // Add dislike
+    const [updatedIdea] = await Promise.all([
+      prisma.idea.update({
+        where: { id },
+        data: {
+          dislikes: {
+            increment: 1
+          }
+        }
+      }),
+      createNotification(
+        "DISLIKE",
+        userId,
+        id,
+        idea.userId,
+        `disliked your idea "${idea.title}"`
+      )
+    ]);
+
+    return response.success(res, { 
+      ...updatedIdea,
+      disliked: true
+    });
   } catch (err) {
     console.error("Error disliking idea:", err);
     return response.error(res, 500, "Error disliking idea");
