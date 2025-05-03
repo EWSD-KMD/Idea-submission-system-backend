@@ -100,7 +100,7 @@ class UserService {
 
   async getIdea() {
     const data = await prisma.idea.findMany({
-      where: { userId: userSession.getUserId() },
+      where: { NOT: { status: Status.DELETED }, userId: userSession.getUserId() },
       include: {
         category: true,
         department: true,
