@@ -155,28 +155,36 @@ class IdeaService {
       },
     });
 
-    const comment = await prisma.comment.create({
-      data: {
-        content,
-        ideaId: parseInt(ideaId, 10),
-        userId,
-        anonymous,
-      },
-      select: {
-        id: true,
-        content: true,
-        createdAt: true,
-        updatedAt: true,
-        anonymous: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
+    const [comment] = await prisma.$transaction([
+      prisma.comment.create({
+        data: {
+          content,
+          ideaId: parseInt(ideaId, 10),
+          userId,
+          anonymous,
+        },
+        select: {
+          id: true,
+          content: true,
+          createdAt: true,
+          updatedAt: true,
+          anonymous: true,
+          user: {
+            select: {
+              id: true,
+              name: true,
+              email: true,
+            },
           },
         },
-      },
-    });
+      }),
+      prisma.idea.update({
+        where: { id: parseInt(ideaId, 10) },
+        data: {
+          lastCommentAt: new Date()
+        }
+      })
+    ]);
 
     this.#sendEmailCommentIdea({
       ideaOwnerEmail: idea.user.email,
