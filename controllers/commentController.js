@@ -190,8 +190,25 @@ export const deleteComment = async (req, res) => {
       return response.error(res, 403, "Not authorized to delete this comment");
     }
 
-    await prisma.comment.delete({
-      where: { id: parseInt(id, 10) },
+    await prisma.$transaction(async (prisma) => {
+      // Delete the comment
+      await prisma.comment.delete({
+        where: { id: parseInt(id, 10) }
+      });
+
+      // Get latest comment for this idea
+      const latestComment = await prisma.comment.findFirst({
+        where: { ideaId: comment.ideaId },
+        orderBy: { createdAt: 'desc' }
+      });
+
+      // Update idea's lastCommentAt
+      await prisma.idea.update({
+        where: { id: comment.ideaId },
+        data: {
+          lastCommentAt: latestComment?.createdAt || null
+        }
+      });
     });
 
     return response.success(res, { message: "Comment deleted successfully" });
