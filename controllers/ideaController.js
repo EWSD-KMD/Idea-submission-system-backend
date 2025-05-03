@@ -394,56 +394,79 @@ export const likeIdea = async (req, res) => {
       return response.error(res, 400, "You cannot like your own idea");
     }
 
-    const existingLike = await prisma.notification.findFirst({
-      where: {
-        ideaId: id,
-        fromUserId: userId,
-        type: "LIKE"
-      }
-    });
+    // Check for existing like and dislike
+    const [existingLike, existingDislike] = await Promise.all([
+      prisma.notification.findFirst({
+        where: {
+          ideaId: id,
+          fromUserId: userId,
+          type: "LIKE"
+        }
+      }),
+      prisma.notification.findFirst({
+        where: {
+          ideaId: id,
+          fromUserId: userId,
+          type: "DISLIKE"
+        }
+      })
+    ]);
 
-    if (existingLike) {
-      await Promise.all([
-        prisma.notification.delete({
+    // Start a transaction for multiple operations
+    const result = await prisma.$transaction(async (prisma) => {
+      // If there's an existing dislike, remove it
+      if (existingDislike) {
+        await prisma.notification.delete({
+          where: { id: existingDislike.id }
+        });
+        await prisma.idea.update({
+          where: { id },
+          data: {
+            dislikes: {
+              decrement: 1
+            }
+          }
+        });
+      }
+
+      // Handle like toggle
+      if (existingLike) {
+        await prisma.notification.delete({
           where: { id: existingLike.id }
-        }),
-        prisma.idea.update({
+        });
+        const updatedIdea = await prisma.idea.update({
           where: { id },
           data: {
             likes: {
               decrement: 1
             }
           }
-        })
-      ]);
-
-      return response.success(res, { 
-        message: "Like removed successfully",
-        liked: false
-      });
-    }
-
-    const [updatedIdea] = await Promise.all([
-      prisma.idea.update({
-        where: { id },
-        data: {
-          likes: {
-            increment: 1
+        });
+        return { updatedIdea, liked: false };
+      } else {
+        const updatedIdea = await prisma.idea.update({
+          where: { id },
+          data: {
+            likes: {
+              increment: 1
+            }
           }
-        }
-      }),
-      createNotification(
-        "LIKE",
-        userId,
-        id,
-        idea.userId,
-        `liked your idea "${idea.title}"`
-      )
-    ]);
+        });
+        await createNotification(
+          "LIKE",
+          userId,
+          id,
+          idea.userId,
+          `liked your idea "${idea.title}"`
+        );
+        return { updatedIdea, liked: true };
+      }
+    });
 
-    return response.success(res, { 
-      ...updatedIdea,
-      liked: true
+    return response.success(res, {
+      ...result.updatedIdea,
+      liked: result.liked,
+      message: result.liked ? "Idea liked successfully" : "Like removed successfully"
     });
   } catch (err) {
     console.error("Error liking idea:", err);
@@ -456,7 +479,6 @@ export const dislikeIdea = async (req, res) => {
     const id = parseInt(req.params.id, 10);
     const userId = userSession.getUserId();
 
-    // First get the idea to check ownership
     const idea = await prisma.idea.findUnique({
       where: { id },
     });
@@ -469,59 +491,79 @@ export const dislikeIdea = async (req, res) => {
       return response.error(res, 400, "You cannot dislike your own idea");
     }
 
-    // Check if user already disliked this idea
-    const existingDislike = await prisma.notification.findFirst({
-      where: {
-        ideaId: id,
-        fromUserId: userId,
-        type: "DISLIKE"
-      }
-    });
+    // Check for existing like and dislike
+    const [existingLike, existingDislike] = await Promise.all([
+      prisma.notification.findFirst({
+        where: {
+          ideaId: id,
+          fromUserId: userId,
+          type: "LIKE"
+        }
+      }),
+      prisma.notification.findFirst({
+        where: {
+          ideaId: id,
+          fromUserId: userId,
+          type: "DISLIKE"
+        }
+      })
+    ]);
 
-    if (existingDislike) {
-      // Remove dislike
-      await Promise.all([
-        prisma.notification.delete({
+    // Start a transaction for multiple operations
+    const result = await prisma.$transaction(async (prisma) => {
+      // If there's an existing like, remove it
+      if (existingLike) {
+        await prisma.notification.delete({
+          where: { id: existingLike.id }
+        });
+        await prisma.idea.update({
+          where: { id },
+          data: {
+            likes: {
+              decrement: 1
+            }
+          }
+        });
+      }
+
+      // Handle dislike toggle
+      if (existingDislike) {
+        await prisma.notification.delete({
           where: { id: existingDislike.id }
-        }),
-        prisma.idea.update({
+        });
+        const updatedIdea = await prisma.idea.update({
           where: { id },
           data: {
             dislikes: {
               decrement: 1
             }
           }
-        })
-      ]);
-
-      return response.success(res, { 
-        message: "Dislike removed successfully",
-        disliked: false
-      });
-    }
-
-    // Add dislike
-    const [updatedIdea] = await Promise.all([
-      prisma.idea.update({
-        where: { id },
-        data: {
-          dislikes: {
-            increment: 1
+        });
+        return { updatedIdea, disliked: false };
+      } else {
+        const updatedIdea = await prisma.idea.update({
+          where: { id },
+          data: {
+            dislikes: {
+              increment: 1
+            }
           }
-        }
-      }),
-      createNotification(
-        "DISLIKE",
-        userId,
-        id,
-        idea.userId,
-        `disliked your idea "${idea.title}"`
-      )
-    ]);
+        });
+        await createNotification(
+          "DISLIKE",
+          userId,
+          id,
+          idea.userId,
+          `disliked your idea "${idea.title}"`
+        );
+        return { updatedIdea, disliked: true };
+      }
+    });
 
-    return response.success(res, { 
-      ...updatedIdea,
-      disliked: true
+    return response.success(res, {
+      ...result.updatedIdea,
+      disliked: result.disliked,
+      message: result.disliked ? "Idea disliked successfully" : "Dislike removed successfully"
     });
   } catch (err) {
     console.error("Error disliking idea:", err);
