@@ -6,8 +6,8 @@ import { fileService } from "./file.service.js";
 import crypto from "crypto";
 
 class UserService {
-  constructor() {
-    this.prisma = prisma;
+  get prisma() {
+    return prisma;
   }
   async getProfile() {
     const userId = userSession.getUserId();

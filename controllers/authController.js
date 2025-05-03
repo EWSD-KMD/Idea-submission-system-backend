@@ -8,7 +8,7 @@ import { AppError } from "../utils/appError.js";
 
 export const login = async (req, res, next) => {
   try {
-    const userAgent = req.headers["user-agent"];
+    const userAgent = req.headers["x-user-agent"];
     const { email, password, source } = req.body;
     const data = await authService.login(email, password, source, userAgent);
     return response.success(res, data);
