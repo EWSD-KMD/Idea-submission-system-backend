@@ -13,6 +13,7 @@ import { JwtTokenType } from "../constants/jwtConstant.js";
 import { emailService } from "./email.service.js";
 import { EMAIL_TEMPLATE } from "../constants/emailTemplateConstant.js";
 import { userSession } from "../utils/userSession.js";
+import { getPrettyUserAgent } from "../utils/common.js";
 
 class AuthService {
   async #isValidPassword(pwd, pwdHash) {
@@ -39,6 +40,7 @@ class AuthService {
   }
 
   async login(email, password, source, userAgent) {
+    userAgent = getPrettyUserAgent(userAgent);
     const user = await prisma.user.findUnique({
       where: { email },
     });

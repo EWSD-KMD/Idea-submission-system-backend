@@ -50,3 +50,7 @@ export function ensureTmpDir() {
     console.log("📁 /tmp directory already exists.");
   }
 }
+
+export function getPrettyUserAgent(userAgent) {
+  return userAgent.split(" ")[0].split("/")[0];
+}
