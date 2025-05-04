@@ -7,7 +7,7 @@ const generateAccessToken = async (payload) => {
     { ...payload, type: JwtTokenType.ACCESS_TOKEN },
     process.env.JWT_ACCESS_TOKEN_SECRET,
     {
-      expiresIn: 600,
+      expiresIn: "1d",
     }
   );
   return jwtToken;
