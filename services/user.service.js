@@ -31,25 +31,27 @@ class UserService {
     });
   }
 
-  async fullyDisabled(userId, fullyDisabledInd) {
-    await this.prisma.user.update({
+  async fullyDisabled(userId, fullyDisabledInd, txnPrisma) {
+    await txnPrisma.user.update({
       where: { id: userId },
       data: { fullyDisabledInd, disabledInd: fullyDisabledInd },
     });
   }
 
   async fullyDisabledUser(userId, disabledInd) {
-    await this.fullyDisabled(userId, disabledInd);
+    await prisma.$transaction(async (txnPrisma) => {
+      await this.fullyDisabled(userId, disabledInd, txnPrisma);
 
-    // update the status of all the idea and comments
-    await this.prisma.idea.updateMany({
-      where: { userId },
-      data: { status: disabledInd ? Status.HIDE : Status.SHOW },
-    });
+      // update the status of all the idea and comments
+      await txnPrisma.idea.updateMany({
+        where: { userId },
+        data: { status: disabledInd ? Status.HIDE : Status.SHOW },
+      });
 
-    await this.prisma.comment.updateMany({
-      where: { userId },
-      data: { status: disabledInd ? Status.HIDE : Status.SHOW },
+      await txnPrisma.comment.updateMany({
+        where: { userId },
+        data: { status: disabledInd ? Status.HIDE : Status.SHOW },
+      });
     });
   }
 
@@ -100,7 +102,10 @@ class UserService {
 
   async getIdea() {
     const data = await prisma.idea.findMany({
-      where: { NOT: { status: Status.DELETED }, userId: userSession.getUserId() },
+      where: {
+        NOT: { status: Status.DELETED },
+        userId: userSession.getUserId(),
+      },
       include: {
         category: true,
         department: true,
@@ -209,10 +214,5 @@ class UserService {
     });
   }
 }
-
-// transactional
-UserService.prototype.fullyDisabledUser = transactional(
-  UserService.prototype.fullyDisabledUser
-);
 
 export const userService = new UserService();
