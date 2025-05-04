@@ -144,8 +144,8 @@ export const createUser = async (req, res) => {
 export const updateUser = async (req, res) => {
   try {
     const id = parseInt(req.params.id, 10);
-    const { email, name, password, roleId } = req.body;
-    const data = { email, name, roleId };
+    const { email, name, password, roleId, departmentId } = req.body;
+    const data = { email, name, roleId, departmentId };
 
     if (password) {
       data.password = await bcrypt.hash(password, 10);
