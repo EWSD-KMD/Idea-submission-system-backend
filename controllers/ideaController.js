@@ -676,8 +676,9 @@ export const exportIdea = async (req, res, next) => {
 export const hideIdea = async (req, res, next) => {
   try {
     const { ideaId } = req.params;
+    const id = parseInt(ideaId, 10);
     const idea = await prisma.idea.findUnique({
-      where: { id: ideaId },
+      where: { id },
     });
     await ideaService.hideIdea(parseInt(ideaId));
     await createNotification(
