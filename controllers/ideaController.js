@@ -676,7 +676,17 @@ export const exportIdea = async (req, res, next) => {
 export const hideIdea = async (req, res, next) => {
   try {
     const { ideaId } = req.params;
+    const idea = await prisma.idea.findUnique({
+      where: { id: ideaId },
+    });
     await ideaService.hideIdea(parseInt(ideaId));
+    await createNotification(
+      "HIDE",
+      userId,
+      id,
+      idea.userId,
+      `Your idea "${idea.title}" has been hidden`
+    );
     return response.success(res);
   } catch (err) {
     console.error("Error hiding idea:", err);
