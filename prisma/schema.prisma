@@ -153,7 +153,7 @@ model Idea {
   notifications Notification[]
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  lastCommentAt  DateTime  @default(now())
+  lastCommentAt  DateTime?
 }
 
 model Comment {

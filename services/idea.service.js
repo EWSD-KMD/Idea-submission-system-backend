@@ -94,6 +94,7 @@ class IdeaService {
         userId,
         anonymous,
         academicYearId: masterSetting.currentAcademicYearId,
+        lastCommentAt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
       },
       include: {
         category: true,
