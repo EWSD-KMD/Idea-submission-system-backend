@@ -40,7 +40,7 @@ export const getAllIdeas = async (req, res) => {
       latest: { createdAt: "desc" },
       popular: { likes: "desc" },
       mostViewed: { views: "desc" },
-      latestComment:{ lastCommentAt: 'desc' },
+      latestComment:[{ lastCommentAt: 'desc' }, { createdAt: "desc" }],
     };
 
     const orderBy = sortOptions[sortBy] || sortOptions.latest;
@@ -61,7 +61,8 @@ export const getAllIdeas = async (req, res) => {
       ...(categoryId && { categoryId: parseInt(categoryId, 10) }),
       ...(userId && { userId: parseInt(userId, 10) }),
     };
-
+    // console.log("where", where);
+    console.log("orderBy", orderBy);
     const [ideas, total] = await Promise.all([
       prisma.idea.findMany({
         skip,
@@ -129,6 +130,8 @@ export const getAllIdeas = async (req, res) => {
       prisma.idea.count({ where }),
     ]);
 
+    console.log("ideas", ideas);
+
     // Transform ideas to handle anonymous posts
     const transformedIdeas = await Promise.all(
       ideas.map(async (idea) => {
@@ -144,7 +147,6 @@ export const getAllIdeas = async (req, res) => {
             createdAt: "desc",
           },
         });
-        console.log("notis", notis);
         const noti = notis[0];
 
         return {
