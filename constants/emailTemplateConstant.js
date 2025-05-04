@@ -15,4 +15,8 @@ export const EMAIL_TEMPLATE = Object.freeze({
     PATH: "../templates/emailTemplates/compiledTemplates/comment.html",
     SUBJECT: "Commented Idea",
   },
+  CREATE_ANON_COMMENT_TP: {
+    PATH: "../templates/emailTemplates/compiledTemplates/commentAnon.html",
+    SUBJECT: "Commented Idea",
+  },
 });

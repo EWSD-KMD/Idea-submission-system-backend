@@ -34,4 +34,4 @@ function compileTemplate(bodyTemplateFileName) {
   );
 }
 
-compileTemplate("comment.html");
+compileTemplate("commentAnon.html");

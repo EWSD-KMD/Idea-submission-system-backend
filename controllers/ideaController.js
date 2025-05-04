@@ -40,7 +40,7 @@ export const getAllIdeas = async (req, res) => {
       latest: { createdAt: "desc" },
       popular: { likes: "desc" },
       mostViewed: { views: "desc" },
-      latestComment:[{ lastCommentAt: 'desc' }, { createdAt: "desc" }],
+      latestComment: [{ lastCommentAt: "desc" }, { createdAt: "desc" }],
     };
 
     const orderBy = sortOptions[sortBy] || sortOptions.latest;
@@ -248,7 +248,7 @@ export const getIdeaById = async (req, res) => {
       },
     });
 
-    if (!idea) {
+    if (!idea || idea.status !== "SHOW") {
       return response.error(res, 404, "Idea not found");
     }
 
@@ -396,16 +396,16 @@ export const likeIdea = async (req, res) => {
         where: {
           ideaId: id,
           fromUserId: userId,
-          type: "LIKE"
-        }
+          type: "LIKE",
+        },
       }),
       prisma.notification.findFirst({
         where: {
           ideaId: id,
           fromUserId: userId,
-          type: "DISLIKE"
-        }
-      })
+          type: "DISLIKE",
+        },
+      }),
     ]);
 
     // Start a transaction for multiple operations
@@ -413,30 +413,30 @@ export const likeIdea = async (req, res) => {
       // If there's an existing dislike, remove it
       if (existingDislike) {
         await prisma.notification.delete({
-          where: { id: existingDislike.id }
+          where: { id: existingDislike.id },
         });
         await prisma.idea.update({
           where: { id },
           data: {
             dislikes: {
-              decrement: 1
-            }
-          }
+              decrement: 1,
+            },
+          },
         });
       }
 
       // Handle like toggle
       if (existingLike) {
         await prisma.notification.delete({
-          where: { id: existingLike.id }
+          where: { id: existingLike.id },
         });
         const updatedIdea = await prisma.idea.update({
           where: { id },
           data: {
             likes: {
-              decrement: 1
-            }
-          }
+              decrement: 1,
+            },
+          },
         });
         return { updatedIdea, liked: false };
       } else {
@@ -444,9 +444,9 @@ export const likeIdea = async (req, res) => {
           where: { id },
           data: {
             likes: {
-              increment: 1
-            }
-          }
+              increment: 1,
+            },
+          },
         });
         await createNotification(
           "LIKE",
@@ -462,7 +462,9 @@ export const likeIdea = async (req, res) => {
     return response.success(res, {
       ...result.updatedIdea,
       liked: result.liked,
-      message: result.liked ? "Idea liked successfully" : "Like removed successfully"
+      message: result.liked
+        ? "Idea liked successfully"
+        : "Like removed successfully",
     });
   } catch (err) {
     console.error("Error liking idea:", err);
@@ -493,16 +495,16 @@ export const dislikeIdea = async (req, res) => {
         where: {
           ideaId: id,
           fromUserId: userId,
-          type: "LIKE"
-        }
+          type: "LIKE",
+        },
       }),
       prisma.notification.findFirst({
         where: {
           ideaId: id,
           fromUserId: userId,
-          type: "DISLIKE"
-        }
-      })
+          type: "DISLIKE",
+        },
+      }),
     ]);
 
     // Start a transaction for multiple operations
@@ -510,30 +512,30 @@ export const dislikeIdea = async (req, res) => {
       // If there's an existing like, remove it
       if (existingLike) {
         await prisma.notification.delete({
-          where: { id: existingLike.id }
+          where: { id: existingLike.id },
         });
         await prisma.idea.update({
           where: { id },
           data: {
             likes: {
-              decrement: 1
-            }
-          }
+              decrement: 1,
+            },
+          },
         });
       }
 
       // Handle dislike toggle
       if (existingDislike) {
         await prisma.notification.delete({
-          where: { id: existingDislike.id }
+          where: { id: existingDislike.id },
         });
         const updatedIdea = await prisma.idea.update({
           where: { id },
           data: {
             dislikes: {
-              decrement: 1
-            }
-          }
+              decrement: 1,
+            },
+          },
         });
         return { updatedIdea, disliked: false };
       } else {
@@ -541,9 +543,9 @@ export const dislikeIdea = async (req, res) => {
           where: { id },
           data: {
             dislikes: {
-              increment: 1
-            }
-          }
+              increment: 1,
+            },
+          },
         });
         await createNotification(
           "DISLIKE",
@@ -559,7 +561,9 @@ export const dislikeIdea = async (req, res) => {
     return response.success(res, {
       ...result.updatedIdea,
       disliked: result.disliked,
-      message: result.disliked ? "Idea disliked successfully" : "Dislike removed successfully"
+      message: result.disliked
+        ? "Idea disliked successfully"
+        : "Dislike removed successfully",
     });
   } catch (err) {
     console.error("Error disliking idea:", err);
