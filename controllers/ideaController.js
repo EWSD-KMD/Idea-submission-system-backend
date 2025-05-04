@@ -682,9 +682,10 @@ export const hideIdea = async (req, res, next) => {
     });
     await ideaService.hideIdea(parseInt(ideaId));
     if (idea.status !== "HIDE") {
+      const loginUserId = userSession.getUserId();
       await createNotification(
         "HIDE",
-        userId,
+        loginUserId,
         id,
         idea.userId,
         `Your idea "${idea.title}" has been hidden`

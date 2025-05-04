@@ -16,6 +16,10 @@ import {
   getAllMasterSettingData,
   updateMasterSetting,
 } from "../controllers/masterSettingController.js";
+import {
+  authenticateToken,
+  disabledUserChecker,
+} from "../middlewares/authMiddleware.js";
 import { exportIdea, hideIdea } from "../controllers/ideaController.js";
 import { getDashboardStats } from "../controllers/dashboardController.js";
 
@@ -37,6 +41,6 @@ router.get("/idea/export", exportIdea);
 
 router.get("/stats", getDashboardStats);
 
-router.post("/idea/:ideaId/hide", hideIdea);
+router.post("/idea/:ideaId/hide", authenticateToken, hideIdea);
 
 export default router;
