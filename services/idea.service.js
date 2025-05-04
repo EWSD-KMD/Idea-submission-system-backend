@@ -46,10 +46,13 @@ class IdeaService {
     commentText,
     createdAt,
     ideaLink,
+    anonInd,
   }) {
     try {
       const htmlContent = emailService.compileTemplate(
-        EMAIL_TEMPLATE.CREATE_COMMENT_TP.PATH,
+        anonInd
+          ? EMAIL_TEMPLATE.CREATE_ANON_COMMENT_TP.PATH
+          : EMAIL_TEMPLATE.CREATE_COMMENT_TP.PATH,
         {
           ideaOwnerName,
           ideaTitle,
@@ -182,9 +185,9 @@ class IdeaService {
       prisma.idea.update({
         where: { id: parseInt(ideaId, 10) },
         data: {
-          lastCommentAt: new Date()
-        }
-      })
+          lastCommentAt: new Date(),
+        },
+      }),
     ]);
 
     this.#sendEmailCommentIdea({
@@ -196,6 +199,7 @@ class IdeaService {
       commentText: comment.content,
       createdAt: getPrettyDate(comment.createdAt),
       ideaLink: `${process.env.FRONT_END_BASE_URL}/ideas/${ideaId}`,
+      anonInd: anonymous,
     });
     return { userId, idea, comment };
   }
