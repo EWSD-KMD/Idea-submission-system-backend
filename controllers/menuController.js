@@ -3,17 +3,37 @@ import response from "../utils/response.js";
 
 export const getAllMenus = async (req, res) => {
   try {
-    const menus = await prisma.menu.findMany({
-      include: {
-        permissions: true,
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    const [menus, total] = await Promise.all([
+      prisma.menu.findMany({
+        skip,
+        take: limit,
+        include: {
+          permissions: true,
+        },
+      }),
+      prisma.menu.count(),
+    ]);
+
+    return response.success(res, {
+      data: menus,
+      meta: {
+        total,
+        page,
+        limit,
+        totalPages: Math.ceil(total / limit),
       },
     });
-    return response.success(res, menus);
   } catch (err) {
     console.error("Error fetching menus:", err);
     return response.error(res, 500, "Error fetching menus");
   }
 };
+
+
 
 export const getMenuById = async (req, res) => {
   try {
