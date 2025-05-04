@@ -681,13 +681,15 @@ export const hideIdea = async (req, res, next) => {
       where: { id },
     });
     await ideaService.hideIdea(parseInt(ideaId));
-    await createNotification(
-      "HIDE",
-      userId,
-      id,
-      idea.userId,
-      `Your idea "${idea.title}" has been hidden`
-    );
+    if (idea.status !== "HIDE") {
+      await createNotification(
+        "HIDE",
+        userId,
+        id,
+        idea.userId,
+        `Your idea "${idea.title}" has been hidden`
+      );
+    }
     return response.success(res);
   } catch (err) {
     console.error("Error hiding idea:", err);
