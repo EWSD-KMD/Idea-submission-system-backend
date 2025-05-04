@@ -40,10 +40,7 @@ export const getAllIdeas = async (req, res) => {
       latest: { createdAt: "desc" },
       popular: { likes: "desc" },
       mostViewed: { views: "desc" },
-      latestComment: [
-        { lastCommentAt: 'desc' },
-        { createdAt: 'desc' },
-      ],
+      latestComment:{ lastCommentAt: 'desc' },
     };
 
     const orderBy = sortOptions[sortBy] || sortOptions.latest;
