@@ -35,6 +35,7 @@ class IdeaReport {
                 fullyDisabledInd: true,
               },
             },
+            id: true,
             title: true,
             description: true,
             status: true,
