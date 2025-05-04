@@ -67,6 +67,7 @@ export const getAllIdeas = async (req, res) => {
         skip,
         take: limit,
         where,
+        orderBy,
         include: {
           category: true,
           department: true,
@@ -124,7 +125,6 @@ export const getAllIdeas = async (req, res) => {
             },
           },
         },
-        orderBy,
       }),
       prisma.idea.count({ where }),
     ]);
