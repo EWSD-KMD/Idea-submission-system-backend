@@ -204,6 +204,7 @@ enum NotificationType {
   LIKE
   DISLIKE
   COMMENT
+  HIDE
 }
 
 model Notification {
